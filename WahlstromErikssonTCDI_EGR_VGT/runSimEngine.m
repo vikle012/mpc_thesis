@@ -7,11 +7,10 @@
 % compressor mass flow W_c, i.e. there is a sign reversal in this channel.
 % 
 % The inputs have the following ranges:
-% Engine speed, n_e:       500-2000 rpm
-% Fuel injection, u_delta: 1-250    mg/cycle
+% Engine speed, n_e:       500-2000 rpm: Exogen insignal. Kommer från fordonet. Bestämmer på förhand hur den kommer att se ut: WHTC
+% Fuel injection, u_delta: 1-250    mg/cycle per cylinder
 % EGR-valve, u_egr:        0-100    %
-% VGT-position, u_vgt:     20-100   %
-
+% VGT-position, u_vgt:     20-100   %: Styrning på turbon
 
 %    Copyright 2010, 2011, Johan WahlstrÃ¶m, Lars Eriksson
 %
