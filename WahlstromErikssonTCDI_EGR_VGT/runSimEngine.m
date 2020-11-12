@@ -7,12 +7,12 @@
 % compressor mass flow W_c, i.e. there is a sign reversal in this channel.
 % 
 % The inputs have the following ranges:
-% Engine speed, n_e:       500-2000 rpm: Exogen insignal. Kommer från fordonet. Bestämmer på förhand hur den kommer att se ut: WHTC
+% Engine speed, n_e:       500-2000 rpm: Exogen insignal. Kommer fr?n fordonet. Best?mmer p? f?rhand hur den kommer att se ut: WHTC
 % Fuel injection, u_delta: 1-250    mg/cycle per cylinder
 % EGR-valve, u_egr:        0-100    %
-% VGT-position, u_vgt:     20-100   %: Styrning på turbon
+% VGT-position, u_vgt:     20-100   %: Styrning p? turbon
 
-%    Copyright 2010, 2011, Johan WahlstrÃ¶m, Lars Eriksson
+%    Copyright 2010, 2011, Johan Wahlstr??m, Lars Eriksson
 %
 %    This package is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU Lesser General Public License as
@@ -75,7 +75,7 @@ for step=1:2
         %set values for the input step
         %First column: time vector
         %Second column: data vector
-        simU.u_vgt=[[0 1]' [30 25]'];
+        simU.u_vgt=[[0 0]' [30 25]'];
     end
 
     %use final values from the initial simulation as initial state in the
