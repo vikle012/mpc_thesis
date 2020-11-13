@@ -29,7 +29,6 @@ sim('TCDI_EGR_VGT',20)
 % Eliminate states (for later)
 x_init = [simp_im(end); simp_em(end); simX_Oim(end); simX_Oem(end); simn_t(end)*pi/30];
 
-
 %% Simulate step using Simulink model 
 
 simU.u_vgt=[[0 0]' [30 25]'];
