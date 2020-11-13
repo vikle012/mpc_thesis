@@ -65,6 +65,8 @@ u_delta = 110;
 boolW_ei = [];
 boolW_eo = [];
 T_ems = []; % Appoximated therefore better to investigate separately
+W_eis = [];
+W_eos = [];
 % boolX_Oe = []; % not logged
 
 for i = 1:length(simW_ei)
@@ -77,10 +79,84 @@ for i = 1:length(simW_ei)
 
     boolW_ei = [boolW_ei; ismembertol(simW_ei(i), W_ei)];
     boolW_eo = [boolW_eo; ismembertol(simW_eo(i), W_eo)];
+    W_eis = [W_eis; W_ei];
     T_ems = [T_ems; T_em];
+    W_eos = [W_eos; W_eo];
 end
 
 figure
 plot(tout, simT_em)
 hold on
 plot(tout, T_ems, 'r--')
+
+
+
+%% More testing
+
+clf
+
+X_Oe = [];
+lambda_O = [];
+M_e = [];
+W_ei = [];
+W_egr = [];
+W_c = [];
+W_eo = [];
+
+for i = 1:length(X_sim(:,1))
+    
+    X = X_sim(i,:)';
+    [~, signals, ~] = diesel_engine(X, U, n_e, model);
+    
+    X_Oe = [X_Oe; signals.X_Oe];
+    lambda_O = [lambda_O; signals.lambda_O];
+    M_e = [M_e; signals.M_e];
+    W_ei = [W_ei; signals.W_ei];
+    W_egr = [W_egr; signals.W_egr];
+    W_c = [W_c; signals.W_c]; 
+    W_eo = [W_eo; signals.W_eo];
+
+end
+
+figure(1)
+plot(t_sim, lambda_O)
+hold on
+plot(simEngine.time, simEngine.lambda, 'r--')
+title('\lambda_O')
+
+figure(2)
+plot(t_sim, X_Oe)
+hold on
+X_Oe_sim = (simEngine.W_ei.*simEngine.X_Oim - simEngine.W_f*model.AFs*model.X_Oc)./(simEngine.W_f + simEngine.W_ei);
+plot(simEngine.time, X_Oe_sim, 'r--')
+title('X_{Oe}')
+
+figure(3)
+plot(t_sim, M_e)
+hold on
+plot(simEngine.time, simEngine.M_e, 'r--')
+title('M_e')
+
+figure(4)
+plot(t_sim, W_ei)
+hold on
+plot(simEngine.time, simEngine.W_ei, 'r--')
+title('W_{ei}')
+
+figure(5)
+plot(t_sim, W_egr)
+hold on
+plot(simEngine.time, simEngine.W_egr, 'r--')
+title('W_{egr}')
+
+figure(6)
+plot(t_sim, W_c)
+hold on
+plot(simEngine.time, simEngine.W_c, 'r--')
+title('W_{c}')
+
+figure(7)
+plot(t_sim, W_eo)
+hold on
+plot(simEngine.time, simEngine.W_f + simEngine.W_ei, 'r--')
+title('W_{eo}')

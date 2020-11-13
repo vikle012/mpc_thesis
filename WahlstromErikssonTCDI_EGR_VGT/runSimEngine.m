@@ -75,7 +75,7 @@ for step=1:2
         %set values for the input step
         %First column: time vector
         %Second column: data vector
-        simU.u_vgt=[[0 0]' [30 25]'];
+        simU.u_vgt=[[0 1]' [30 25]'];
     end
 
     %use final values from the initial simulation as initial state in the
