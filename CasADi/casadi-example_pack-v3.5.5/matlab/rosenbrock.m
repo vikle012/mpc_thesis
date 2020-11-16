@@ -22,6 +22,7 @@
 %
 %
 % Load CasADi
+addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\CasADi\casadi-windows-matlabR2016a-v3.5.5')
 import casadi.*
  
 % Create NLP: Solve the Rosenbrock problem:
