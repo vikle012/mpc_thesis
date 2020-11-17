@@ -16,11 +16,8 @@ function W_egr = EGR_system(p_im, T_em, p_em, u_egr, param)
     u_egract = u_egr;
     
     % -- In f_egr --
-    if u_egract > -(c_egr2/(2*c_egr1))
-        f_egr = c_egr3 - c_egr2^2/(4*c_egr1);
-    else
-        f_egr = c_egr1*u_egract^2 + c_egr2*u_egract + c_egr3;
-    end
+    f_egr = max(0, c_egr1*min(u_egract, -c_egr2/(2*c_egr1))^2 + ...
+                   c_egr2*min(u_egract, -c_egr2/(2*c_egr1)) + c_egr3);
         
     A_egr = A_egrmax*f_egr;
     

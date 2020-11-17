@@ -42,7 +42,7 @@ function [W_ei, W_eo, T_em, X_Oe, lambda_O, M_e] = ...
     W_eo = W_f + W_ei;
     X_Oe = max(0, (W_ei*X_Oim - W_f*AFs*X_Oc)/W_eo);
     
-    % -- In cylinder torque
+    % -- In cylinder torque --
     lambda = min(1, lambda_O);
     W_ig = eta_igch*lambda*(1 - 1/(r_c^(gamma_c - 1)))*u_delta*q_HV*1e-6*n_cyl;
     W_p = V_d*(p_em - p_im);
@@ -51,8 +51,7 @@ function [W_ei, W_eo, T_em, X_Oe, lambda_O, M_e] = ...
     M_e = (W_ig - W_p - W_fric)/(4*pi);
     
     % -- In Cylinder temp (one iter with delay) --
-    % Approximated using equation (24)
-    
+    % Approximated using equation (24)   
     PI_e = p_em/p_im;
     
     x_r = param.x_r_Init;
