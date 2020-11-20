@@ -1,4 +1,4 @@
-function [W_ei, W_eo, T_em, X_Oe, lambda_O, M_e] = ...
+function [W_ei, W_eo, T_em, X_Oe, lambda_O, lambda_air, M_e] = ...
     cylinder(p_im, p_em, X_Oim, n_e, u_delta, T_im, param)
     
     %% Model Parameters
@@ -27,8 +27,8 @@ function [W_ei, W_eo, T_em, X_Oe, lambda_O, M_e] = ...
     
     %% Calculations
     
-    n_e = min(2000, max(500, n_e)); % Saturation
-    u_delta = min(250, max(1, u_delta)); % Saturation
+    % n_e = min(2000, max(500, n_e)); % Saturation
+    % u_delta = min(250, max(1, u_delta)); % Saturation
     
     % -- In Cylinder flow --
     eta_vol = c_volVec(1)*sqrt(p_im) + c_volVec(2)*sqrt(n_e) + c_volVec(3);
@@ -40,10 +40,13 @@ function [W_ei, W_eo, T_em, X_Oe, lambda_O, M_e] = ...
     % -- In lambda --
     lambda_O = W_ei*X_Oim/(W_f*AFs*X_Oc);
     W_eo = W_f + W_ei;
-    X_Oe = max(0, (W_ei*X_Oim - W_f*AFs*X_Oc)/W_eo);
+    X_Oe = (W_ei*X_Oim - W_f*AFs*X_Oc)/W_eo; % "Saturation"
+    
+    % for constraints in OCP
+    lambda_air =  W_ei/(W_f*AFs);
     
     % -- In cylinder torque --
-    lambda = min(1, lambda_O);
+    lambda = min(1, lambda_O); % Scaling factor
     W_ig = eta_igch*lambda*(1 - 1/(r_c^(gamma_c - 1)))*u_delta*q_HV*1e-6*n_cyl;
     W_p = V_d*(p_em - p_im);
     n_eratio = n_e/1000;
@@ -64,7 +67,7 @@ function [W_ei, W_eo, T_em, X_Oe, lambda_O, M_e] = ...
         x_r = min(1, max(0, x_r)); % Saturation
         T_e = eta_sc*PI_e^(1 - 1/gamma_a)*r_c^(1 - gamma_a)*x_p^(1/gamma_a - 1)*...
         (q_in*((1 - x_cv)/c_pa + x_cv/c_va) + T_1*r_c^(gamma_a - 1));
-        T_e = min(1500, T_e);
+        T_e = min(1500, T_e); % Saturation
         T_1 = x_r*T_e + (1 - x_r)*T_im;
         T_1 = max(273, T_1); % Saturation
     end

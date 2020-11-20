@@ -1,4 +1,4 @@
-function [W_c, T_c, P_c] = compressor(T_bc, p_bc, p_c, w_t, param)
+function [W_c, T_c, P_c, PI_c, eta_c] = compressor(T_bc, p_bc, p_c, w_t, param)
     
     %% Model parameters
     R_a         = param.R_a;
@@ -18,7 +18,7 @@ function [W_c, T_c, P_c] = compressor(T_bc, p_bc, p_c, w_t, param)
     %% Calculations
     
     % -- In Sub PI_c --
-    PI_c = max(1, p_c/p_bc);
+    PI_c = p_c/p_bc; % max(1, p_c/p_bc); % "Saturation"
       
     % -- In Sub W_c --
     PSI_c = 2*c_pa*T_bc*(PI_c^(1 - 1/gamma_a) - 1)/(R_c^2*w_t^2);
@@ -29,12 +29,12 @@ function [W_c, T_c, P_c] = compressor(T_bc, p_bc, p_c, w_t, param)
     fcn1 = c_phi2 + sqrt(fcn/c_phi1);
     PHI_c = max(0, fcn1); 
     W_c = p_bc*pi*R_c^3*w_t*PHI_c/(R_a*T_bc);
-    W_c = max(1e-4, W_c); % Saturation    
+    % W_c = max(1e-4, W_c); % Saturation    
     
     % -- In DeltaT_c --
     pi_c = (PI_c - 1)^c_pi;
     chi = [W_c - W_copt; pi_c - pi_copt]; 
-    eta_c = max(0.2, eta_cmax - chi'*Q_c*chi);
+    eta_c = eta_cmax - chi'*Q_c*chi; % Saturation
     DeltaT_c = T_bc*(PI_c^(1 - 1/gamma_a) - 1)/eta_c;
     T_c = DeltaT_c + T_bc;
     

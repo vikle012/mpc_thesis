@@ -16,18 +16,21 @@ function [dX, signals, param] = diesel_engine(X, U, n_e, param)
     u_vgt   = U(3); % VGT control signal    [%]
     
     % --- Cylinder ---
-    [W_ei, W_eo, T_em, X_Oe, lambda_O, M_e] = ...
+    [W_ei, W_eo, T_em, X_Oe, lambda_O, lambda_air, M_e] = ...
         cylinder(p_im, p_em, X_Oim, n_e, u_delta, param.T_im, param);
 
     % --- Turbo ---
     % Compressor
-    [W_c, T_c, P_c] = compressor(param.T_amb, param.p_amb, p_im, w_t, param);
+    [W_c, T_c, P_c, PI_c, eta_c] = ...
+        compressor(param.T_amb, param.p_amb, p_im, w_t, param);
 
     % Turbine
-    [W_t, P_t_eta_m] = turbine(T_em, p_em, param.p_amb, w_t, u_vgt, param);
+    [W_t, P_t_eta_m, eta_tm, BSR, PI_t] = ...
+        turbine(T_em, p_em, param.p_amb, w_t, u_vgt, param);
 
     % --- EGR-system ---
-    W_egr = EGR_system(p_im, T_em, p_em, u_egr, param);
+    [W_egr, PI_egr] = ...
+        EGR_system(p_im, T_em, p_em, u_egr, param);
 
     % Dynamics
     d_p_im = param.R_a*param.T_im*(W_c + W_egr - W_ei)/param.V_im;    
@@ -44,9 +47,16 @@ function [dX, signals, param] = diesel_engine(X, U, n_e, param)
     signals.W_eo = W_eo;
     signals.W_ei = W_ei;
     signals.lambda_O = lambda_O;
+    signals.lambda_air = lambda_air;
     signals.M_e = M_e;
     signals.W_egr = W_egr;
     signals.W_c = W_c;
+    signals.eta_tm = eta_tm;
+    signals.BSR = BSR;
+    signals.PI_t = PI_t;
+    signals.PI_egr = PI_egr;
+    signals.PI_c = PI_c;
+    signals.eta_c = eta_c;
     
 end
 

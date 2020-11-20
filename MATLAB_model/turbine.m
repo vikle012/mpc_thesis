@@ -1,4 +1,4 @@
-function [W_t, P_t_eta_m] = turbine(T_em, p_em, p_es, w_t, u_vgt, param)
+function [W_t, P_t_eta_m, eta_tm, BSR, PI_t] = turbine(T_em, p_em, p_es, w_t, u_vgt, param)
     
     %% Model Parameters
     R_t         = param.R_t;
@@ -20,17 +20,18 @@ function [W_t, P_t_eta_m] = turbine(T_em, p_em, p_es, w_t, u_vgt, param)
     %% Calculations
     
     % -- In PI_t --
-    PI_t = min(p_es/p_em, 0.9999);
+    PI_t = p_es/p_em; % min(p_es/p_em, 0.9999); % "Saturation"
     
     % -- In eta_tm --
     BSR = R_t*w_t/sqrt(2*c_pe*T_em*(1 - PI_t^(1 - 1/gamma_e)));
-    BSR = min(2*BSR_opt, max(0, BSR));  
-    c_m = c_m1*(max(0, w_t - c_m2))^c_m3; % FEL H?R?
+    % BSR = min(2*BSR_opt, max(0, BSR)); % Saturation  
+    c_m = c_m1*(max(0, w_t - c_m2))^c_m3;
     eta_tm = eta_tmmax - c_m*(BSR - BSR_opt)^2;
-    eta_tm = min(1, max(0.2, eta_tm)); % Saturation
+    % eta_tm = min(1, max(0.2, eta_tm)); % Saturation
     eta_tm_DeltaT_t = T_em*(1 - PI_t^(1 - 1/gamma_e))*eta_tm;
 
-    u_vgt = min(100, max(20, u_vgt)); % Saturation   
+    % u_vgt = min(100, max(20, u_vgt)); % Saturation   
+    
     % No actuator dynamics
     u_vgtact = u_vgt;
     
