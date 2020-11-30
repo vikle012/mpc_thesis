@@ -4,7 +4,7 @@
 clear
 close all
 clc
-
+% 
 % Change path if necessary
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\MATLAB_model')
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WahlstromErikssonTCDI_EGR_VGT')
@@ -12,7 +12,7 @@ addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\CasADi\casadi-windows-matlab
 import casadi.*
 load parameterData
 
-%% CasADi variables set-up
+% CasADi variables set-up
 
 % Declare states
 x = casadi.SX.sym('X',5); % 5x1 matrix
@@ -31,7 +31,7 @@ u = casadi.SX.sym('U',3); % 3x1 matrix
 % Declare external input signals
 n_e = 1500;     % Note: 500 <= n_e <= 2000
 
-%% Calculate M_e and other saturated signals using CasADi variables
+% Calculate M_e and other saturated signals using CasADi variables
 
 [x_dot, y, ~] = diesel_engine(x, u, n_e, model);
 
@@ -79,7 +79,7 @@ constr = [constr_t; constr_EGR; constr_cyl; constr_c];
 constr_lbg = [constr_t_lbg; constr_EGR_lbg; constr_cyl_lbg; constr_c_lbg];
 constr_ubg = [constr_t_ubg; constr_EGR_ubg; constr_cyl_ubg; constr_c_ubg];
 
-%% CasADi NLP set-up
+% CasADi NLP set-up
 
 % Weights (nom with average from min, max values)
 q1 = 1/((0.5*p_amb + 10*p_amb)/2)^2;
@@ -101,7 +101,7 @@ g = [M_e; x_dot; constr];      % Constraint variables
 w = [x; u];                 % Optimization variables
 
 % ipopt options
-opts.ipopt.max_iter = 500;
+% opts.ipopt.max_iter = 500;
 % opts.ipopt.print_level = 0;
 opts.ipopt.acceptable_tol = 1e-8;   % 1e-6 by default
 opts.ipopt.constr_viol_tol = 1e-8;  % 1e-6 by default
@@ -133,20 +133,7 @@ w_opt = full(solution.x);
 x_opt = w_opt(1:5);
 u_opt = w_opt(6:8);
 
-% Testing
-% [dx, sig, ~] = diesel_engine(x_opt, u_opt, n_e, model);
-
-%% Linearizing system around x_opt and u_opt as stationary points
-%  follows the format in "Reglerteori"
-
-A = jacobian(diesel_engine(x, u, n_e, model), x);
-B = jacobian(diesel_engine(x, u, n_e, model), u);
-
-z = (x - x_opt);
-v = (u - u_opt);
-z_dot = A*z + B*v; % Might be f(x0, u0) =\ 0
-
-%% Linearized MPC
-
-
-
+% Test and aquire setpoints for later use
+[dx, sig, ~] = diesel_engine(x_opt, u_opt, n_e, model);
+x_egr_sp = sig.x_egr;
+lambda_O_sp = sig.lambda_O;

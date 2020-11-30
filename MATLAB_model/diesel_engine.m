@@ -46,7 +46,7 @@ function [dX, signals, param] = diesel_engine(X, U, n_e, param)
     signals.X_Oe = X_Oe;
     signals.W_eo = W_eo;
     signals.W_ei = W_ei;
-    signals.lambda_O = lambda_O;
+    
     signals.lambda_air = lambda_air;
     signals.M_e = M_e;
     signals.W_egr = W_egr;
@@ -58,5 +58,7 @@ function [dX, signals, param] = diesel_engine(X, U, n_e, param)
     signals.PI_c = PI_c;
     signals.eta_c = eta_c;
     
+    signals.x_egr = W_egr/(W_c + W_egr);
+    signals.lambda_O = lambda_O;
 end
 
