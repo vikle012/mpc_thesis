@@ -1,4 +1,4 @@
-function [dX, signals, param] = diesel_engine(X, U, n_e, param)
+function [dX, signals, constr] = diesel_engine(X, U, n_e, param)
 %% Model ------------------------------------------------------------------
     % States
     p_im        = X(1); % Intake manifold pressure                  [Pa]
@@ -41,6 +41,41 @@ function [dX, signals, param] = diesel_engine(X, U, n_e, param)
     
     dX = [d_p_im; d_p_em; d_X_Oim; d_X_Oem; d_w_t];
 
+%% Saturation constraints
+    
+    % --- From turbine.m ---
+    % PI_t <= 0.9999            "Saturation"
+    % 0 <= BSR <= 2*BSR_opt      Saturation
+    % 0.2 <= eta_tm <= 1         Saturation
+    constr_t = [PI_t; BSR; eta_tm];
+    constr_t_lbg = [0; 0; 0.2];
+    constr_t_ubg = [0.9999; 2*param.BSR_opt; 1];
+
+    % --- From EGR_system.m ---
+    % PI_egropt <= PI_egr <= 1   Saturation
+    constr_EGR = PI_egr;
+    constr_EGR_lbg = param.PI_egropt;
+    constr_EGR_ubg = 1;
+
+    % --- From cylinder.m ---
+    % 1.2 < lambda_air      Discussed value
+    % 0 <= X_Oe             "Saturation"
+    constr_cyl = [lambda_air; X_Oe];
+    constr_cyl_lbg = [1.2; 0];
+    constr_cyl_ubg = [inf; inf;];
+
+    % --- From compressor.m ---
+    % 1 <= PI_c                 "Saturation"
+    % 1e-4 <= W_c <= inf         Saturation
+    % 0.2 <= eta_c              "Saturation"
+    constr_c = [PI_c; W_c; eta_c];
+    constr_c_lbg = [1; 1e-4; 0.2];
+    constr_c_ubg = [inf; inf; 1];
+
+    constr.constraints = [constr_t; constr_EGR; constr_cyl; constr_c];
+    constr.lbg = [constr_t_lbg; constr_EGR_lbg; constr_cyl_lbg; constr_c_lbg];
+    constr.ubg = [constr_t_ubg; constr_EGR_ubg; constr_cyl_ubg; constr_c_ubg];
+
 %% Signals
 
     signals.X_Oe = X_Oe;
@@ -55,7 +90,6 @@ function [dX, signals, param] = diesel_engine(X, U, n_e, param)
     signals.BSR = BSR;
     signals.PI_t = PI_t;
     signals.PI_egr = PI_egr;
-    signals.PI_c = PI_c;
     signals.eta_c = eta_c;
     
     signals.x_egr = W_egr/(W_c + W_egr);
