@@ -7,6 +7,7 @@ clc
 % Change path if necessary
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\MATLAB_model')
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\Controllers')
+addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WHTC')
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WahlstromErikssonTCDI_EGR_VGT')
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\CasADi\casadi-windows-matlabR2016a-v3.5.5')
 import casadi.*
