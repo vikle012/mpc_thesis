@@ -15,7 +15,7 @@ load parameterData
 x_opt = [156530.169403718; 162544.519591941; 0.228497904007297; ...
          0.120767676163110; 6598.24892268606];
 u_opt = [110.976447879888; 15.3657549771663; 70.8311084176616];    
-
+ 
 % From engine_map.m with m = 1200
 x_step = [190976.306096801; 190976.304195917; 0.231400000000089; ...
           0.107150994106105; 7865.28279123926];
@@ -49,8 +49,8 @@ utilde = casadi.SX.sym('xtilde', 3);
 % Linearized continous time system
 xtilde_dot = A(x_opt, u_opt)*xtilde + B(x_opt, u_opt)*utilde;
 
-T = 5;     % Time horizon
-N = 200;    % Prediction horizon/number of control intervals
+T = 5;      % Time horizon
+N = 25;     % Prediction horizon/number of control intervals
 Ts = T/N;   % Sample time
 
 q1 = 10/((0.5*model.p_amb + 10*model.p_amb)/2)^2;
@@ -91,12 +91,12 @@ xtilde_ubw = x_ubw - x_opt;
 utilde_lbw = u_lbw - u_opt;
 utilde_ubw = u_ubw - u_opt;
 
-xtilde_dagger = [-150000; 0; 0; 0; 0]; % Disturbed state
-% xtilde_dagger = x_step-x_opt;
+%xtilde_dagger = [-1500; 0; 0; 0; 0]; % Disturbed state
+xtilde_dagger = x_step-x_opt;
 
 % "Lift" initial conditions
-Xk = casadi.MX.sym('X0', 5);
-w = [w; Xk];
+X0 = casadi.MX.sym('X0', 5);
+w = [w; X0];
 lbw = [lbw; xtilde_dagger];
 ubw = [ubw; xtilde_dagger];
 w0 = [w0; xtilde_dagger];
@@ -104,6 +104,7 @@ w0 = [w0; xtilde_dagger];
 F = integration_function(f, "EF", Ts, N);
 
 % Formulate the NLP
+Xk = X0;
 for k=0:N-1        
     
     % New NLP variable for the control     
