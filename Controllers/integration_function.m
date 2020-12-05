@@ -12,21 +12,21 @@ import casadi.*
 h = Ts/M; % Step size
 X0 = casadi.MX.sym('X0', 5);
 U = casadi.MX.sym('U', 3);
+U_old = casadi.MX.sym('U_old', 3);
 X = X0;
 Q = 0;   % Objective cost function
-
 if method == "EF"
     for k = 1:M
-        [k1, k1_q] = f(X, U);
+        [k1, k1_q] = f(X, U, U_old);
         X = X + h*k1;
         Q = Q + h*k1_q;
     end
 elseif method == "RK4"
     for k = 1:M 
-        [k1, k1_q] = f(X, U);
-        [k2, k2_q] = f(X + h/2*k1, U);
-        [k3, k3_q] = f(X + h/2*k2, U);
-        [k4, k4_q] = f(X + h*k3, U);
+        [k1, k1_q] = f(X, U, U_old);
+        [k2, k2_q] = f(X + h/2*k1, U, U_old);
+        [k3, k3_q] = f(X + h/2*k2, U, U_old);
+        [k4, k4_q] = f(X + h*k3, U, U_old);
         X = X + h/6*(k1 + 2*k2 + 2*k3 + k4);
         Q = Q + h/6*(k1_q + 2*k2_q + 2*k3_q + k4_q);
     end
@@ -34,7 +34,7 @@ else
     error('Invalid integration method.');
 end
 
-F = casadi.Function('F', {X0, U}, {X, Q}, {'x0','p'}, {'xf', 'qf'});
+F = casadi.Function('F', {X0, U, U_old}, {X, Q}, {'x0','p','p_old'}, {'xf', 'qf'});
 
 end
 
