@@ -35,7 +35,7 @@ n_e = 1500;     % Note: 500 <= n_e <= 2000
 [x_dot, y, constr] = diesel_engine(x, u, n_e, model);
 
 M_e = y.M_e;            % M_e >= m
-m = 800;
+m = 900;
 
 % Weights (nom with average from min, max values)
 p_amb = model.p_amb;

@@ -7,13 +7,18 @@ addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WahlstromErikssonTCDI_EGR_VG
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\CasADi\casadi-windows-matlabR2016a-v3.5.5')
 load parameterData
 
-control.u_egract=0;
+control.u_egract = 0;
 % 1: with EGR-actuator dynamics
 % 0: without EGR-actuator dynamics
 
-control.u_vgtact=0;
+control.u_vgtact = 0;
 % 1: with VGT-actuator dynamics
 % 0: without VGT-actuator dynamics
+
+control.disturbance = 1;
+% 1: with disturbance
+% 0: without disturbance
+control.step_at = 1;
 
 % From engine_map.m with m = 800
 x_opt = [156530.169403718; 162544.519591941; 0.228497904007297; ...
@@ -21,9 +26,9 @@ x_opt = [156530.169403718; 162544.519591941; 0.228497904007297; ...
 u_opt = [110.976447879888; 15.3657549771663; 70.8311084176616];  
 
 % From engine_map.m with m = 1200
-x_opt_step = [190976.306096801; 190976.304195917; 0.231400000000089; ...
-          0.107150994106105; 7865.28279123926];
-u_opt_step = [155.324792091864; 0.00144061709657587; 79.1879983060218];
+x_step = [163715.168088435; 167962.252867181; 0.229672106525997; ...
+         0.116324617241729; 6897.33534814885];
+u_step = [122.033437081754; 12.7268611588264; 74.8549539702291];
 
 simulate.n_e = [0 1500];
 simulate.T_s = 0.2;
@@ -31,7 +36,7 @@ simulation_time = 5;
 
 % Initialization
 % Note: change in casadi_MPC.m aswell
-simulate.p_im_Init          = x_opt(1) + 1500;
+simulate.p_im_Init          = x_opt(1);
 simulate.p_em_Init          = x_opt(2);
 simulate.X_Oim_Init         = x_opt(3);
 simulate.X_Oem_Init         = x_opt(4);
@@ -41,7 +46,7 @@ simulate.utilde_egr2_Init   = 0;
 simulate.utilde_vgt_Init    = 0;
 
 % Simulation
-sim('LMPC_model',simulation_time)
+sim('gsMPC_model',simulation_time)
 
 %% For plotting
 
@@ -60,6 +65,7 @@ figure(1)
 subplot(511)
 plot(tout, linspace(x_opt(1), x_opt(1), length(tout)), 'k--', 'Linewidth', 1.3)
 hold on
+plot(tout, linspace(x_step(1), x_step(1), length(tout)), 'g--', 'Linewidth', 1.3)
 % plot(tout, linspace(x_lbw(1), x_lbw(1), length(tout)), 'r--')
 % plot(tout, linspace(x_ubw(1), x_ubw(1), length(tout)), 'r--')
 plot(tout, simp_im)
@@ -68,6 +74,7 @@ title('p_{im}')
 subplot(512)
 plot(tout, linspace(x_opt(2), x_opt(2), length(tout)), 'k--', 'Linewidth', 1.3)
 hold on
+plot(tout, linspace(x_step(2), x_step(2), length(tout)), 'g--', 'Linewidth', 1.3)
 plot(tout, simp_em)
 % plot(tout, linspace(x_lbw(2), x_lbw(2), length(tout)), 'r--')
 % plot(tout, linspace(x_ubw(2), x_ubw(2), length(tout)), 'r--')
@@ -76,6 +83,7 @@ title('p_{em}')
 subplot(513)
 plot(tout, linspace(x_opt(3), x_opt(3), length(tout)), 'k--', 'Linewidth', 1.3)
 hold on
+plot(tout, linspace(x_step(3), x_step(3), length(tout)), 'g--', 'Linewidth', 1.3)
 plot(tout, simX_Oim)
 % plot(tout, linspace(x_lbw(3), x_lbw(3), length(tout)), 'r--')
 % plot(tout, linspace(x_ubw(3), x_ubw(3), length(tout)), 'r--')
@@ -84,6 +92,7 @@ title('X_{Oim}')
 subplot(514)
 plot(tout, linspace(x_opt(4), x_opt(4), length(tout)), 'k--', 'Linewidth', 1.3)
 hold on
+plot(tout, linspace(x_step(4), x_step(4), length(tout)), 'g--', 'Linewidth', 1.3)
 plot(tout, simX_Oem)
 % plot(tout, linspace(x_lbw(4), x_lbw(4), length(tout)), 'r--')
 % plot(tout, linspace(x_ubw(4), x_ubw(4), length(tout)), 'r--')
@@ -92,6 +101,7 @@ title('X_{Oem}')
 subplot(515)
 plot(tout, linspace(x_opt(5), x_opt(5), length(tout)), 'k--', 'Linewidth', 1.3)
 hold on
+plot(tout, linspace(x_step(5), x_step(5), length(tout)), 'g--', 'Linewidth', 1.3)
 plot(tout, simn_t*pi/30)
 % plot(tout, linspace(x_lbw(5), x_lbw(5), length(tout)), 'r--')
 % plot(tout, linspace(x_ubw(5), x_ubw(5), length(tout)), 'r--')
@@ -111,6 +121,7 @@ figure(2)
 subplot(311)
 plot(tout, linspace(u_opt(1), u_opt(1), length(tout)), 'k--', 'Linewidth', 1.3)
 hold on
+plot(tout, linspace(u_step(1), u_step(1), length(tout)), 'g--', 'Linewidth', 1.3)
 stairs(linspace(0, simulation_time, simulation_time/simulate.T_s + 1), u_delta)
 % plot(tout, linspace(u_lbw(1), u_lbw(1), length(tout)), 'r--')
 % plot(tout, linspace(u_ubw(1), u_ubw(1), length(tout)), 'r--')
@@ -119,6 +130,7 @@ title('u_\delta')
 subplot(312)
 plot(tout, linspace(u_opt(2), u_opt(2), length(tout)), 'k--', 'Linewidth', 1.3)
 hold on
+plot(tout, linspace(u_step(2), u_step(2), length(tout)), 'g--', 'Linewidth', 1.3)
 stairs(linspace(0, simulation_time, simulation_time/simulate.T_s + 1), u_egr)
 % plot(tout, linspace(u_lbw(2), u_lbw(2), length(tout)), 'r--')
 % plot(tout, linspace(u_ubw(2), u_ubw(2), length(tout)), 'r--')
@@ -127,6 +139,7 @@ title('u_{egr}')
 subplot(313)
 plot(tout, linspace(u_opt(3), u_opt(3), length(tout)), 'k--', 'Linewidth', 1.3)
 hold on
+plot(tout, linspace(u_step(3), u_step(3), length(tout)), 'g--', 'Linewidth', 1.3)
 stairs(linspace(0, simulation_time, simulation_time/simulate.T_s + 1), u_vgt)
 % plot(tout, linspace(u_lbw(3), u_lbw(3), length(tout)), 'r--')
 % plot(tout, linspace(u_ubw(3), u_ubw(3), length(tout)), 'r--')
@@ -143,6 +156,7 @@ end
 figure(3)
 plot(tout, linspace(800, 800, length(tout)), 'k--', 'Linewidth', 1.3)
 hold on
+plot(tout, linspace(900, 900, length(tout)), 'g--', 'Linewidth', 1.3)
 plot(tout, M_e)
 title('M_e')
 

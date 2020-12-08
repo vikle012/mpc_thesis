@@ -1,4 +1,4 @@
-classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
+classdef casadi_stepMPC < matlab.System & matlab.system.mixin.Propagates
     % untitled Add summary here
     %
     % This template includes the minimum set of functions required
@@ -62,9 +62,9 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
             Ts = T/N;   % Sample time
 
             % From engine_map.m with m = 800
-            x_opt = [156530.169403718; 162544.519591941; 0.228497904007297; ...
-                     0.120767676163110; 6598.24892268606];
-            u_opt = [110.976447879888; 15.3657549771663; 70.8311084176616];
+            x_opt = [163715.168088435; 167962.252867181; 0.229672106525997; ...
+                     0.116324617241729; 6897.33534814885];
+            u_opt = [122.033437081754; 12.7268611588264; 74.8549539702291];
             
             % Declare external input signals
             n_e = 1500;     % Note: 500 <= n_e <= 2000
@@ -133,7 +133,7 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
             utilde_lbw = u_lbw - u_opt;
             utilde_ubw = u_ubw - u_opt;
 
-            xtilde_dagger = [1500; 0; 0; 0; 0]; % Disturbed state
+            xtilde_dagger = [0; 0; 0; 0; 0]; % Disturbed state
 
             % "Lift" initial conditions
             Uold = casadi.MX.sym('Uold', 3);
@@ -198,9 +198,9 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
         end
 
         function u = stepImpl(obj,x,t)                       
-            x_opt = [156530.169403718; 162544.519591941; 0.228497904007297; ...
-                     0.120767676163110; 6598.24892268606];
-            u_opt = [110.976447879888; 15.3657549771663; 70.8311084176616];
+            x_opt = [163715.168088435; 167962.252867181; 0.229672106525997; ...
+                     0.116324617241729; 6897.33534814885];
+            u_opt = [122.033437081754; 12.7268611588264; 74.8549539702291];
             
             w0 = obj.x0;
             lbw = obj.lbx;
