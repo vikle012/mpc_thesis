@@ -61,7 +61,7 @@ classdef casadi_stepMPC < matlab.System & matlab.system.mixin.Propagates
             N = 25;    % Prediction horizon/number of control intervals
             Ts = T/N;   % Sample time
 
-            % From engine_map.m with m = 800
+            % From engine_map.m with m = 900
             x_opt = [163715.168088435; 167962.252867181; 0.229672106525997; ...
                      0.116324617241729; 6897.33534814885];
             u_opt = [122.033437081754; 12.7268611588264; 74.8549539702291];

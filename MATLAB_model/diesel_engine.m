@@ -16,7 +16,7 @@ function [dX, signals, constr] = diesel_engine(X, U, n_e, param)
     u_vgt   = U(3); % VGT control signal    [%]
     
     % --- Cylinder ---
-    [W_ei, W_eo, T_em, X_Oe, lambda_O, lambda_air, M_e] = ...
+    [W_ei, W_eo, T_em, X_Oe, lambda_O, lambda_air, M_e, x_r, T_1] = ...
         cylinder(p_im, p_em, X_Oim, n_e, u_delta, param.T_im, param);
 
     % --- Turbo ---
@@ -94,5 +94,8 @@ function [dX, signals, constr] = diesel_engine(X, U, n_e, param)
     
     signals.x_egr = W_egr/(W_c + W_egr);
     signals.lambda_O = lambda_O;
+    
+    signals.x_r = x_r;
+    signals.T_1 = T_1;
 end
 

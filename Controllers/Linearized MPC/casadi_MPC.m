@@ -19,11 +19,13 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
         ubx
         lbg
         ubg
+        x_ref
+        u_ref
     end
 
     methods (Access = protected)
         function num = getNumInputsImpl(~)
-            num = 3;
+            num = 2;
         end
         function num = getNumOutputsImpl(~)
             num = 1;
@@ -52,21 +54,24 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
         function fz1 = isOutputFixedSizeImpl(~)
         	fz1 = true;
         end
-        function setupImpl(obj,x,t, T_s)
+        function setupImpl(obj,~,~)
+            
             load parameterData
             import casadi.*
+            global ref;
+            global tuning_param;
             
-            T = 5;
-            N = 25;    % Prediction horizon/number of control intervals
-            Ts = T/N;   % Sample time
-
-            % From engine_map.m with m = 800
-            x_opt = [156530.169403718; 162544.519591941; 0.228497904007297; ...
-                     0.120767676163110; 6598.24892268606];
-            u_opt = [110.976447879888; 15.3657549771663; 70.8311084176616];
+            obj.x_ref = ref.x_ref;
+            obj.u_ref = ref.u_ref;
             
-            % Declare external input signals
-            n_e = 1500;     % Note: 500 <= n_e <= 2000
+            N = tuning_param.N;    % Prediction horizon/number of control intervals
+            T_s = tuning_param.T_s;   % Sample time
+            n_e = tuning_param.n_e;  
+                
+            x_from = ref.x_start;
+            u_from = ref.u_start;
+            x_to = ref.x_ref;
+            u_to = ref.u_ref;
 
             x = casadi.SX.sym('X',5); % 5x1 matrix
             % p_im    = x(1);
@@ -81,8 +86,6 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
             % u_egr   = u(2);
             % u_vgt   = u(3);
 
-            % Linearizing system around x_opt and u_opt as stationary points
-            % follows the format in "Reglerteori"
             A = casadi.Function('A', {x,u}, {jacobian(diesel_engine(x, u, n_e, model), x)});
             B = casadi.Function('B', {x,u}, {jacobian(diesel_engine(x, u, n_e, model), u)});
             xtilde = casadi.SX.sym('xtilde', 5);
@@ -90,20 +93,10 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
             utilde_old = casadi.SX.sym('utilde_old', 3);
 
             % Linearized continous time system
-            xtilde_dot = A(x_opt, u_opt)*xtilde + B(x_opt, u_opt)*utilde;
+            xtilde_dot = A(x_to, u_to)*xtilde + B(x_to, u_to)*utilde;
 
-            q1 = 20/((0.5*model.p_amb + 10*model.p_amb)/2)^2;
-            q2 = 20/((0.5*model.p_amb + 20*model.p_amb)/2)^2;
-            q3 = 10/((0 + 1)/2)^2;
-            q4 = 10/((0 + 1)/2)^2;
-            q5 = 20/((100*pi/30 + 200000*pi/30)/2)^2;
-
-            r1 = 0.01/((1 + 250)/2)^2;
-            r2 = 0.01/((0 + 100)/2)^2;
-            r3 = 0.01/((20 + 100)/2)^2;
-
-            Q1 = diag([q1 q2 q3 q4 q5]);
-            Q2 = diag([r1 r2 r3]);
+            Q1 = tuning_param.Q;
+            Q2 = tuning_param.R;
 
             % Objective function
             L = xtilde'*Q1*xtilde + ...
@@ -127,19 +120,19 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
             x_ubw = [10*model.p_amb;  20*model.p_amb;   1; 1; 200000*pi/30];
             u_lbw = [1; 0; 20];
             u_ubw = [250; 100; 100];
-            xtilde_lbw = x_lbw - x_opt; 
-            xtilde_ubw = x_ubw - x_opt;
-            utilde_lbw = u_lbw - u_opt;
-            utilde_ubw = u_ubw - u_opt;
+            xtilde_lbw = x_lbw - x_to; 
+            xtilde_ubw = x_ubw - x_to;
+            utilde_lbw = u_lbw - u_to;
+            utilde_ubw = u_ubw - u_to;
 
-            xtilde_dagger = [0; 0; 0; 0; 0]; % Disturbed state
+            xtilde_dagger = x_from - x_to; % Disturbed state
 
             % "Lift" initial conditions
             Uold = casadi.MX.sym('Uold', 3);
             args.w = [args.w; Uold];
-            args.lbw = [args.lbw; [111.0829; 16.2702; 71.5151] - u_opt];
-            args.ubw = [args.ubw; [111.0829; 16.2702; 71.5151] - u_opt];
-            args.w0 = [args.w0; [111.0829; 16.2702; 71.5151] - u_opt];
+            args.lbw = [args.lbw; u_from - u_to];
+            args.ubw = [args.ubw; u_from - u_to];
+            args.w0 = [args.w0; u_from - u_to];
             
             X0 = casadi.MX.sym('X0', 5);
             args.w = [args.w; X0];
@@ -147,8 +140,8 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
             args.ubw = [args.ubw; xtilde_dagger];
             args.w0 = [args.w0; xtilde_dagger];
 
-            M = 4; % Number of integration steps per sample
-            F = integration_function(f, "EF", Ts, M);          
+            M = 1; % Number of integration steps per sample
+            F = integration_function(f, "EF", T_s, M);          
             
             % Formulate the NLP
             Xk = X0;
@@ -159,7 +152,7 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
                 args.w = [args.w; Uk];
                 args.lbw = [args.lbw; utilde_lbw];
                 args.ubw = [args.ubw; utilde_ubw]; 
-                args.w0 = [args.w0; zeros(3,1)];              
+                args.w0 = [args.w0; zeros(3,1)]; 
 
                 % Integrate till the end of the interval
                 Fk = F('x0', Xk, 'p', Uk, 'p_old', Utilde_old);
@@ -182,7 +175,7 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
 
             % qpOASES options
             % opts = struct('qpoases', struct("setPrintLevel", "PL_NONE"));
-
+            
             % Create an NLP solver function
             qp = struct('f', args.J, 'x', args.w, 'g', args.G);
             solver = casadi.qpsol('solver', 'qpoases', qp);
@@ -196,28 +189,23 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
 
         end
 
-        function u = stepImpl(obj,x,t,T_s)                       
-            x_opt = [156530.169403718; 162544.519591941; 0.228497904007297; ...
-                     0.120767676163110; 6598.24892268606];
-            u_opt = [110.976447879888; 15.3657549771663; 70.8311084176616];
-            
+        function u = stepImpl(obj,x,t)                       
             w0 = obj.x0;
             lbw = obj.lbx;
             ubw = obj.ubx;
             solver = obj.casadi_solver;
-            lbw(4:8) = x - x_opt;
-            ubw(4:8) = x - x_opt;
+            lbw(4:8) = x - obj.x_ref;
+            ubw(4:8) = x - obj.x_ref;
             sol = solver('x0', w0, 'lbx', lbw, 'ubx', ubw,...
                         'lbg', obj.lbg, 'ubg', obj.ubg);
             w_opt = full(sol.x);
+            u_opt = [w_opt(9); w_opt(10); w_opt(11)];
             
-            u = [w_opt(9) + u_opt(1);...
-                 w_opt(10) + u_opt(2);...
-                 w_opt(11) + u_opt(3)];
+            u = u_opt + obj.u_ref;
              
             % For integral action 
-            obj.lbx(1:3) = u - u_opt;
-            obj.ubx(1:3) = u - u_opt;
+            obj.lbx(1:3) = u - obj.u_ref;
+            obj.ubx(1:3) = u - obj.u_ref;
         end
 
         function resetImpl(obj)
