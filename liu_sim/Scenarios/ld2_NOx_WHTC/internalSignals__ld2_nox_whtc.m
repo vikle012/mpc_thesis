@@ -1,0 +1,180 @@
+function z = internalSignals__ld2_nox_whtc(ld2_NOx, t_vec, x_vec, u_vec, t_label)
+
+z = struct;
+
+[~, ~, ~, parameters_used] = ld2_NOx(x_vec(1,:)', u_vec(1,:)', t_vec(1));
+
+z.t_vec.val = t_vec;
+z.x_vec.val = x_vec;
+z.x_vec.title = 'States';
+z.x_vec.label = 'x';
+z.u_vec.val = u_vec;
+z.u_vec.title = 'Control inputs';
+z.u_vec.label = 'u';
+
+if nargin == 5
+    z.t_vec.label = t_label;
+else
+    z.t_vec.label = 'Time [s]';
+end
+
+for k = 1:length(t_vec)
+    
+    [~, ~, c] = ld2_NOx(x_vec(k,:)', u_vec(k,:)', t_vec(k));
+    
+    % CAC and Throttle
+    z.C1 = 'CAC and Throttle'; % Category (for readability)
+    z.p_cac.val(k)  = c.p_cac;
+    z.W_thr.val(k)  = c.W_thr;
+    z.u_thr.val(k)  = c.u_thr;
+    z.Pi_thr.val(k) = c.Pi_thr;
+    % Intake manifold
+    z.C2 = 'Intake Manifold';
+    z.p_im.val(k)   = c.p_im;
+    z.W_cyl.val(k)  = c.W_cyl;
+    z.eta_vol.val(k)= c.eta_vol;
+    % Cylinder
+    z.C3 = 'Cylinder';
+    z.N_ice.val(k)  = c.N_ice;
+    z.M_ice.val(k)  = c.M_ice;
+    z.P_ice.val(k)  = c.P_ice;
+    z.u_f.val(k)    = c.u_f;
+    z.W_f.val(k)    = c.W_f;
+    z.Lambda.val(k) = c.Lambda;
+    z.phi.val(k)    = c.phi;
+    z.eta_f.val(k)  = c.eta_f;
+    z.M_fric.val(k) = c.M_fric;
+    z.M_pump.val(k) = c.M_pump;
+    z.M_ig.val(k)   = c.M_ig;
+    % Exhaust manifold
+    z.C4 = 'Exhaust Manifold';
+    z.p_em.val(k)   = c.p_em;
+    z.T_em.val(k)   = c.T_em;
+    % Turbo
+    z.C5 = 'Turbocharger';
+    z.w_t.val(k)    = c.w_t;
+    z.N_t.val(k)    = c.N_t;
+    z.eta_tm.val(k) = c.eta_tm;
+    % Turbine
+    z.C5a = 'Turbine';
+    z.Pi_turb.val(k) = c.Pi_turb;
+    z.turb_exp_rat.val(k) = 1/c.Pi_turb;
+    z.W_wg.val(k)   = c.W_wg;
+    z.u_wg.val(k)   = c.u_wg;
+    z.W_turb.val(k) = c.W_turb;
+    z.BSR.val(k)    = c.BSR;
+    z.P_turb_eta_tm.val(k) ...
+        = c.P_turb_eta_tm;
+    z.T_turb.val(k) = c.T_turb;
+    z.T_turb_drop.val(k) = c.T_turb_drop;
+    % Compressor
+    z.C5b = 'Compressor';
+    z.Pi_comp.val(k) = c.Pi_comp;
+    z.W_comp.val(k) = c.W_comp;
+    z.eta_comp.val(k) = c.eta_comp;
+    z.T_comp.val(k)  = c.T_comp;
+    z.P_comp.val(k)  = c.P_comp;
+    % After Turbine and Wastegate
+    z.C5c = 'After Turbine and Wastegate';
+    z.T_atw.val(k)      = c.T_atw;
+    z.T_tw_drop.val(k)  = c.T_tw_drop;
+    z.W_tw.val(k)       = c.W_tw;
+    % Emissions
+    z.C6 = 'Emissions';
+    z.NOx_EO.val(k)    = c.NOx_EO;
+    z.NOx_tot.val(k)= c.NOx_tot;
+    
+end
+
+z.p_cac.title = 'Charge air cooler';
+z.p_cac.label = 'p_{cac} [Pa]';
+z.W_thr.title = 'Throttle massflow';
+z.W_thr.label = 'W_{thr} [kg/s]';
+z.u_thr.title = 'Throttle control input';
+z.u_thr.label = 'u_{thr} [0, 1]';
+z.Pi_thr.title = 'Throttle pressure ratio';
+z.Pi_thr.label = '\Pi_{thr} [-]';
+z.p_im.title = 'Intake manifold pressure';
+z.p_im.label = 'p_{im} [Pa]';
+z.W_cyl.title = 'Cylinder air massflow';
+z.W_cyl.label = 'W_{cyl} [kg/s]';
+z.eta_vol.title = 'volumetric efficiency';
+z.eta_vol.label = '\eta_{vol} [-]';
+z.N_ice.title = 'Engine speed';
+z.N_ice.label = 'N_{ice} [rpm]';
+z.M_ice.title = 'Engine torque';
+z.M_ice.label = 'M_{ice} [Nm]';
+z.P_ice.title = 'Engine power';
+z.P_ice.label = 'P_{ice} [W]';
+z.u_f.title = 'Fuel injection';
+z.u_f.label = 'u_f [mg/cyc]';
+z.W_f.title = 'Fuel flow';
+z.W_f.label = 'W_f [kg/s]';
+z.Lambda.title = 'Air-to-fuel eq. ratio';
+z.Lambda.label = '\lambda [-]';
+z.phi.title = 'Fuel-to-air eq. ratio';
+z.phi.label = '\phi [-]';
+z.eta_f.title = 'Fuel efficiency';
+z.eta_f.label = '\eta_f [-]';
+z.M_fric.title = 'Friction torque';
+z.M_fric.label = 'M_{fric} [Nm]';
+z.M_pump.title = 'Pumping torque';
+z.M_pump.label = 'M_{pump} [Nm]';
+z.M_ig.title = 'Indicated torque';
+z.M_ig.label = 'M_{ig} [Nm]';
+z.p_em.title = 'Exhaust manifold pressure';
+z.p_em.label = 'p_{em} [Pa]';
+z.T_em.title = 'Exhaust manifold temperature';
+z.T_em.label = 'T_{em} [K]';
+% Turbocharger
+z.w_t.title = 'Turbocharger speed';
+z.w_t.label = '\omega_t [rad/s]';
+z.N_t.title = 'Turbocharger speed';
+z.N_t.label = 'N_t [krpm]';
+z.eta_tm.title = 'Turbine and shaft efficiency';
+z.eta_tm.label = '\eta_{tm} [-]';
+z.Pi_turb.title = 'Turbine pressure ratio';
+z.Pi_turb.label = '\Pi_t [-]';
+z.turb_exp_rat.title = 'Turbine expanssion ratio';
+z.turb_exp_rat.label = '1/\Pi_t [-]';
+z.W_wg.title = 'Wastegate massflow';
+z.W_wg.label = 'W_{wg} [kg/s]';
+z.u_wg.title = 'Wastegate control input';
+z.u_wg.label = 'u_{wg} [0, 1]';
+z.W_turb.title = 'Turbine massflow';
+z.W_turb.label = 'W_{t} [kg/s]';
+z.BSR.title = 'BSR';
+z.BSR.label = 'BSR [-]';
+z.P_turb_eta_tm.title = 'Turbine power';
+z.P_turb_eta_tm.label = 'P_{t}\eta_{tm} [W]';
+z.T_turb.title = 'Temp. after turbine';
+z.T_turb.label = 'Turbine temperature [K]';
+z.T_turb_drop.title = 'Temperature drop over turbine';
+z.T_turb_drop.label = 'Temperature drop over turbine [K]';
+z.Pi_comp.title = 'Compressor pressure ratio';
+z.Pi_comp.label = '\Pi_c [-]';
+z.W_comp.title = 'Compressor massflow';
+z.W_comp.label = 'W_c [kg/s]';
+z.eta_comp.title = 'Compressor efficiency';
+z.eta_comp.label = '\eta_c [-]';
+z.T_comp.title  = 'Compressor compressed air temp.';
+z.T_comp.label  = 'T_c [K]';
+z.P_comp.title  = 'Compressor power';
+z.P_comp.label  = 'P_c [W]';
+% After turbine and wastegate
+z.T_atw.title = 'Temperature after Turbine and Wastegate';
+z.T_atw.label = 'T_{atw} [K]';
+z.T_tw_drop.title = 'Temperature drop over Turbine and Wastegate';
+z.T_tw_drop.label = '\Delta T_{tw} [K]';
+z.W_tw.title = 'Massflow past Turbine and Wastegate';
+z.W_tw.label = 'W_{tw} [kg/s]';
+% Emissions
+z.NOx_EO.title     = 'Out of engine NO_{x}';
+z.NOx_EO.label     = 'NO_{x} (g/s)';
+z.NOx_tot.title = 'Out of engine total NO_{x}';
+z.NOx_tot.label = 'NO_{x} [g]';
+
+z.P = 'Parameters';
+z.parameters = parameters_used;
+
+end

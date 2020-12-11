@@ -1,0 +1,67 @@
+% This script loops the simple engine simulation and saves the friction
+% torque into a vector. Basic fitting is used to plot the friction torque
+% in the NOx map.
+%% Setup simulation
+clear all;
+close all;
+
+% Control indices, for reabability
+[u_f, u_thr, u_wg] = enum(3);
+
+% Load engine parameters. Ignore warnings
+%load('liu_diesel_2_params.mat');
+main_hev;
+
+% setup engine model variable
+ld2_NOx = @(X, U, N_ice) liu_diesel_NOx(X, U, N_ice, param.ld2.ice_param);
+
+% setup simulator
+opts = odeset('RelTol', 1e-9, 'AbsTol', 1e-9);
+simulate = @(model, X0, U, N_ice, tf) ...
+             ode15s(@(t,x) model(x, U, N_ice), [0, tf], X0, opts);
+
+%% Simulate a step in fuel injection at ~1200 rpm
+N_vec = linspace(500,2400,30);
+for i = 1:30
+
+N_ice_des = N_vec(i);
+
+% Load steady-state setpoint from the LD2 engine map
+load('ld2_eng_map.mat')
+
+% Find the steady-state operating point closest to the desired speed in the engine
+% map
+[~, N_index] = min(abs( engine_map.rpm_range - N_ice_des ));
+N_ice_sim = engine_map.rpm_range(N_index);
+
+% Start the engine from the lowest calibrated torque, at the desired speed
+X0 = [cell2mat(engine_map.state_calibration(1, N_index));0];
+U0 = cell2mat(engine_map.control_calibration(1, N_index));
+
+% Add step to control signal
+rel_step = 120;
+%U = [U0(u_f)+rel_step; U0(u_thr:u_wg)];
+U0(u_wg) = 0;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+U = [U0(u_f) + rel_step; U0(u_thr); U0(u_wg)]; %Tillagd
+
+% Simulate step
+tf = 1; % end time [s]
+[t_sim, x_sim] = simulate(ld2_NOx, X0, U, N_ice_sim, tf);
+
+%% Calculate internal signals based on simulation results
+signals = engine_internal_signals_NOx(@(x, u)ld2_NOx(x, u, N_ice_sim), ...
+                                  t_sim, ...
+                                  x_sim, ...
+                                  repmat(U', length(t_sim), ...
+                                  1));
+
+M_fric_vec(i) = signals.M_fric.val(1);
+M_pump_vec(i) = signals.M_pump.val(1);
+end
+%% plot simulation signals
+close all
+ld2_NOx_plots(signals, engine_map);
+NOx_plots(signals);
+
+
+
