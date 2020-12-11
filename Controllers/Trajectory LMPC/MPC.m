@@ -55,7 +55,7 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
         	fz1 = true;
         end
         function setupImpl(obj,~,~)
-            addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WahlstromErikssonTCDI_EGR_VGT')
+            
             load parameterData
             import casadi.*
             global ref;
