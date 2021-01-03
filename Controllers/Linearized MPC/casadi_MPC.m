@@ -21,6 +21,7 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
         ubg
         x_ref
         u_ref
+        u_old
     end
 
     methods (Access = protected)
@@ -115,6 +116,7 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
             args.G   = [];
             args.lbg = [];
             args.ubg = [];
+            args.p   = [];
 
             x_lbw = [0.5*model.p_amb; 0.5*model.p_amb;  0; 0; 100*pi/30]; 
             x_ubw = [10*model.p_amb;  20*model.p_amb;   1; 1; 200000*pi/30];
@@ -129,10 +131,10 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
 
             % "Lift" initial conditions
             Uold = casadi.MX.sym('Uold', 3);
-            args.w = [args.w; Uold];
-            args.lbw = [args.lbw; u_from - u_to];
-            args.ubw = [args.ubw; u_from - u_to];
-            args.w0 = [args.w0; u_from - u_to];
+            args.p = [args.p; Uold];
+%             args.lbw = [args.lbw; u_from - u_to];
+%             args.ubw = [args.ubw; u_from - u_to];
+%             args.w0 = [args.w0; u_from - u_to];
             
             X0 = casadi.MX.sym('X0', 5);
             args.w = [args.w; X0];
@@ -172,12 +174,16 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
                 args.lbg = [args.lbg; zeros(5,1)];
                 args.ubg = [args.ubg; zeros(5,1)];  
             end
-
+            
+            % Last state objective term
+            V_f = Xk'*Q1*Xk;
+            args.J = args.J + T_s*V_f;
+            
             % qpOASES options
             % opts = struct('qpoases', struct("setPrintLevel", "PL_NONE"));
             
             % Create an NLP solver function
-            qp = struct('f', args.J, 'x', args.w, 'g', args.G);
+            qp = struct('f', args.J, 'x', args.w, 'p', args.p, 'g', args.G);
             solver = casadi.qpsol('solver', 'qpoases', qp);
 
             obj.casadi_solver = solver;
@@ -186,6 +192,8 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
             obj.ubx = args.ubw;
             obj.lbg = args.lbg;
             obj.ubg = args.ubg;
+            
+            obj.u_old = u_from - u_to;
 
         end
 
@@ -194,18 +202,25 @@ classdef casadi_MPC < matlab.System & matlab.system.mixin.Propagates
             lbw = obj.lbx;
             ubw = obj.ubx;
             solver = obj.casadi_solver;
-            lbw(4:8) = x - obj.x_ref;
-            ubw(4:8) = x - obj.x_ref;
-            sol = solver('x0', w0, 'lbx', lbw, 'ubx', ubw,...
+            lbw(1:5) = x - obj.x_ref;
+            ubw(1:5) = x - obj.x_ref;
+            
+            p = [obj.u_old];
+            
+            if t == 0
+                lbw(6:8) = [110.976447879888; 15.3657549771663; 70.8311084176616] - [122.033437081754; 12.7268611588264; 74.8549539702291];
+                ubw(6:8) = [110.976447879888; 15.3657549771663; 70.8311084176616] - [122.033437081754; 12.7268611588264; 74.8549539702291];
+            end
+            
+            sol = solver('x0', w0, 'p', p, 'lbx', lbw, 'ubx', ubw,...
                         'lbg', obj.lbg, 'ubg', obj.ubg);
             w_opt = full(sol.x);
-            u_opt = [w_opt(9); w_opt(10); w_opt(11)];
+            u_opt = [w_opt(6); w_opt(7); w_opt(8)];
             
             u = u_opt + obj.u_ref;
              
             % For integral action 
-            obj.lbx(1:3) = u - obj.u_ref;
-            obj.ubx(1:3) = u - obj.u_ref;
+            obj.u_old = u - obj.u_ref;
         end
 
         function resetImpl(obj)

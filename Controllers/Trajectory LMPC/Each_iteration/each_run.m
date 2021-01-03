@@ -7,7 +7,38 @@ addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WahlstromErikssonTCDI_EGR_VG
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\CasADi\casadi-windows-matlabR2016a-v3.5.5')
 load parameterData
 
-global ref;
+
+% max_torque = 2220;
+% max_speed = 2000;
+% 
+% load WHTC_data
+
+% M_e = max_torque * torque/100;
+% n_e = max_speed * speed/100;
+
+% subplot(2,1,1)
+% plot(time, M_e)
+% subplot(2,1,2)
+% plot(time, n_e)
+
+% [x_ref, u_ref] = find_trajectory(M_e, n_e, model);
+% 
+% %%
+% 
+% figure(1)
+% for i = 1:5
+%    subplot(5,1,i)
+%    plot(time, x_ref(i,:))
+% end
+% 
+% figure(2)
+% for i = 1:3
+%    subplot(3,1,i)
+%    plot(time, u_ref(i,:))
+% end
+
+%%
+
 global tuning_param;
 
 control.u_egract = 0;
@@ -28,22 +59,20 @@ x_900 = [163715.168088435; 167962.252867181; 0.229672106525997; ...
          0.116324617241729; 6897.33534814885];
 u_900 = [122.033437081754; 12.7268611588264; 74.8549539702291];
 
-ref.x_start = x_800;
-ref.u_start = u_800;
-ref.x_ref = x_900;
-ref.u_ref = u_900;
+n_e = 1500;
+tuning_param.n_e = n_e; % n_e_init
 
 %% Tuning Parameters
-tuning_param.T_s = 0.01;
+tuning_param.T_s = 0.05/5;
 tuning_param.N = 40;
 
 q1 = 100/((0.5*model.p_amb + 10*model.p_amb)/2)^2;
 q2 = 100/((0.5*model.p_amb + 20*model.p_amb)/2)^2;
-q3 = 50/((0 + 1)/2)^2;
+q3 = 70/((0 + 1)/2)^2;
 q4 = 50/((0 + 1)/2)^2;
-q5 = 100/((100*pi/30 + 200000*pi/30)/2)^2;
+q5 = 50/((100*pi/30 + 200000*pi/30)/2)^2;
 
-r1 = 40/((1 + 250)/2)^2;
+r1 = 50/((1 + 250)/2)^2;
 r2 = 0.005/((0 + 100)/2)^2;
 r3 = 0.005/((20 + 100)/2)^2;
 
@@ -52,43 +81,37 @@ tuning_param.R = diag([r1 r2 r3]);
 
 %% Simulation
 simulation_time = 1;
+time_vector = [0 0.1]';
 
 % Note: 500 <= n_e <= 2000
-simulate.n_e = [0 1500]; % Row vector since "From Workspace"
-tuning_param.n_e = simulate.n_e(2);
+simulate.n_e = timeseries(n_e, time_vector); % Row vector since "From Workspace"
+simulate.x_ref = timeseries([x_800'; x_900'], time_vector);
+simulate.u_ref = timeseries([u_800'; u_900'], time_vector);
 
-% Initialization
-% Note: change in casadi_MPC.m aswell
-simulate.p_im_Init          = ref.x_start(1);
-simulate.p_em_Init          = ref.x_start(2);
-simulate.X_Oim_Init         = ref.x_start(3);
-simulate.X_Oem_Init         = ref.x_start(4);
-simulate.omega_t_Init       = ref.x_start(5);
+% --- Simulink initialization ---
+simulate.p_im_Init          = simulate.x_ref.data(1,1);
+simulate.p_em_Init          = simulate.x_ref.data(1,2);
+simulate.X_Oim_Init         = simulate.x_ref.data(1,3);
+simulate.X_Oem_Init         = simulate.x_ref.data(1,4);
+simulate.omega_t_Init       = simulate.x_ref.data(1,5);
 simulate.utilde_egr1_Init   = 0;
 simulate.utilde_egr2_Init   = 0;
 simulate.utilde_vgt_Init    = 0;
 
-[~,y,~] = diesel_engine(ref.x_start, ref.u_start, tuning_param.n_e, model);
+simulate.u_egr_Init = simulate.u_ref.data(1,1);
+simulate.u_vgt_Init = simulate.u_ref.data(1,2);
+
+[~,y,~] = ...
+    diesel_engine(simulate.x_ref.data(1,:), simulate.u_ref.data(1,:), ...
+                  tuning_param.n_e(1), model);
 simulate.x_r_Init = y.x_r;
 simulate.T_1_Init = y.T_1;
-simulate.u_egr_Init = ref.u_start(2);
-simulate.u_vgt_Init = ref.u_start(3);
+% -------------------------------
 
 % Simulation
-sim('LMPC_model', simulation_time)
+sim('each_model', simulation_time)
 
-%% For plotting
-
-% x_lbw = [0.5*model.p_amb; 0.5*model.p_amb;  0; 0; 100*pi/30]; 
-% x_ubw = [10*model.p_amb;  20*model.p_amb;   1; 1; 200000*pi/30];
-% u_lbw = [1; 0; 20];
-% u_ubw = [250; 100; 100];
-% xtilde_lbw = x_lbw - x_800; 
-% xtilde_ubw = x_ubw - x_800;
-% utilde_lbw = u_lbw - u_800;
-% utilde_ubw = u_ubw - u_800;
-
-%% Plotting
+%% Plotting --- Kolla ?ver
 
 figure(1)
 subplot(511)
@@ -179,7 +202,6 @@ M_e = [];
 lambda_O = [];
 for i = 1:length(tout)
    M_e = [M_e; simM_e(:,:,i)];
-   lambda_O = [lambda_O; simlambda(:,:,i)];
 end
 
 figure(3)
@@ -189,14 +211,3 @@ plot(tout, linspace(900, 900, length(tout)), 'k:', 'Linewidth', 1.3)
 plot(tout, M_e)
 title('M_e')
 
-% figure(4)
-% plot(tout, simx_egr)
-% title('x_{egr}')
-% 
-% figure(5)
-% plot(tout, simp_em-simp_im)
-% title('p_{em} - p_{im}')
-% 
-% figure(6)
-% plot(tout, lambda_O)
-% title('\lambda_O')
