@@ -11,7 +11,7 @@ M_e_input = [800; 900];
 n_e_input = [1500; 1500];
 [x_ref, u_ref] = find_trajectory(M_e_input, n_e_input, model);
 
-time_vector = [0 0.2]';
+time_vector = [0 0.01]';
 simulation_time = 1;
 
 %%
@@ -42,7 +42,7 @@ init_param.n_e = n_e_input(1); % n_e_init
 init_param.model = model;
 
 %% Tuning Parameters
-init_param.T_s = 0.01;
+init_param.T_s = 0.1;
 init_param.N = 40;
 
 q1 = 100/((0.5*model.p_amb + 10*model.p_amb)/2)^2;
@@ -79,14 +79,15 @@ simulate.utilde_vgt_Init    = 0;
 simulate.u_egr_Init = simulate.u_ref.data(1,:,1);
 simulate.u_vgt_Init = simulate.u_ref.data(2,:,1);
 
-[~,y,~] = diesel_engine(simulate.x_ref.data(:,:,1), ...
-                        simulate.u_ref.data(:,:,1), init_param.n_e, model);
+[~,y,~] = ...
+    diesel_engine(simulate.x_ref.data(:,:,1), simulate.u_ref.data(:,:,1), ...
+                  init_param.n_e, model);
 simulate.x_r_Init = y.x_r;
 simulate.T_1_Init = y.T_1;
 % -------------------------------
 
 % Simulation
-sim('paramAB_model', simulation_time)
+sim('nonlinear_paramAB_model', simulation_time)
 
 %% Plotting
 
