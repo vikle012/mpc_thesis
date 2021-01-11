@@ -72,6 +72,20 @@ L = xtilde'*Q1*xtilde + utilde'*Q2*utilde;
 % Continuous time dynamics using diesel_engine.m
 f = casadi.Function('f', {xtilde, utilde}, {xtilde_dot, L});
 
+% Integration Euler forward
+M = 1; % Nr of steps
+h = Ts/M;
+X0 = casadi.MX.sym('X0', 5);
+U = casadi.MX.sym('U', 3);
+X = X0;
+Q = 0;
+for k = 1:M
+    [k1, k1_q] = f(X, U);
+    X = X + h*k1;
+    Q = Q + h*k1_q;
+end
+F = casadi.Function('F', {X0, U}, {X, Q}, {'x0','p'}, {'xf', 'qf'});
+
 % Start with an empty NLP
 w   = [];
 w0  = [];
@@ -100,8 +114,6 @@ w = [w; X0];
 lbw = [lbw; xtilde_dagger];
 ubw = [ubw; xtilde_dagger];
 w0 = [w0; xtilde_dagger];
-
-F = integration_function(f, "EF", Ts, N);
 
 % Formulate the NLP
 Xk = X0;
