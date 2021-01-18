@@ -43,7 +43,7 @@ init_param.model = model;
 
 %% Select Controller and Tune Parameters
 
-controller_object = 'linReferenceEach';
+controller_object = 'linOnce';
 
 init_param.T_s = 0.01;
 init_param.N = 40;
@@ -65,25 +65,49 @@ init_param.u_old = u_ref(:,1); % Not happy with this fix, but works
 
 %% Simulation
 simulate.T_s = init_param.T_s;
-simulate.n_e = timeseries(n_e_input, time_vector); % Row vector since "From Workspace"
-simulate.x_ref = timeseries(x_ref, time_vector);
-simulate.u_ref = timeseries(u_ref, time_vector);
+
+if strcmp(controller_object, "linPreview")
+    % Not proud of this solution
+    x_ref_all = [];
+    u_ref_all = [];
+    for i = 1:length(time_vector)
+        t1 = time_vector(i);
+        if i == length(time_vector)
+            t2 = simulation_time;
+            repeat = (t2 - t1)/simulate.T_s + 1;
+        else
+            t2 = time_vector(i+1);
+            repeat = (t2 - t1)/simulate.T_s;
+        end
+        x_ref_all = [x_ref_all repmat(x_ref(:,i), 1, repeat)];
+        u_ref_all = [u_ref_all repmat(u_ref(:,i), 1, repeat)];
+    end
+    % Extend further
+    x_ref_all = [x_ref_all repmat(x_ref(:,end), 1, init_param.N)];
+    u_ref_all = [u_ref_all repmat(u_ref(:,end), 1, init_param.N)];
+    simulate.n_e = timeseries(n_e_input, time_vector); % Row vector since "From Workspace"
+    simulate.x_ref = timeseries(x_ref_all, 0);
+    simulate.u_ref = timeseries(u_ref_all, 0);
+else
+    simulate.n_e = timeseries(n_e_input, time_vector); % Row vector since "From Workspace"
+    simulate.x_ref = timeseries(x_ref, time_vector);
+    simulate.u_ref = timeseries(u_ref, time_vector);
+end
 
 % --- Simulink initialization ---
-simulate.p_im_Init          = simulate.x_ref.data(1,:,1);
-simulate.p_em_Init          = simulate.x_ref.data(2,:,1);
-simulate.X_Oim_Init         = simulate.x_ref.data(3,:,1);
-simulate.X_Oem_Init         = simulate.x_ref.data(4,:,1);
-simulate.omega_t_Init       = simulate.x_ref.data(5,:,1);
+simulate.p_im_Init          = x_ref(1,1);
+simulate.p_em_Init          = x_ref(2,1);
+simulate.X_Oim_Init         = x_ref(3,1);
+simulate.X_Oem_Init         = x_ref(4,1);
+simulate.omega_t_Init       = x_ref(5,1);
 simulate.utilde_egr1_Init   = 0;
 simulate.utilde_egr2_Init   = 0;
 simulate.utilde_vgt_Init    = 0;
 
-simulate.u_egr_Init = simulate.u_ref.data(1,:,1);
-simulate.u_vgt_Init = simulate.u_ref.data(2,:,1);
+simulate.u_egr_Init = u_ref(1,1);
+simulate.u_vgt_Init = u_ref(2,1);
 
-[~,y,~] = diesel_engine(simulate.x_ref.data(:,:,1), ...
-                        simulate.u_ref.data(:,:,1), init_param.n_e, model);
+[~,y,~] = diesel_engine(x_ref(:,1), u_ref(:,1), init_param.n_e, model);
 simulate.x_r_Init = y.x_r;
 simulate.T_1_Init = y.T_1;
 % -------------------------------
