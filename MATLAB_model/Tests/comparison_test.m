@@ -105,37 +105,79 @@ options = odeset('RelTol',1e-10, 'AbsTol', 1e-8);
 %% Compare with steps from model
 % Requires data from simEngine in runSimEngine.m 
 
-figure(1)
+h = figure(1);
 clf
 subplot(511)
-plot(t_sim, X_sim(:,1))
+plot(simEngine.time, simEngine.p_im)
 hold on
-plot(simEngine.time, simEngine.p_im, 'r--')
-title('p_{im}')
-
-legend(["MATLAB model", "Simulink model"], 'Location', 'northeast')
+plot(t_sim, X_sim(:,1), 'r--')
+ylabel('p_{im} [Pa]')
 
 subplot(512)
-plot(t_sim, X_sim(:,2))
+plot(simEngine.time, simEngine.p_em)
 hold on
-plot(simEngine.time, simEngine.p_em, 'r--')
-title('p_{em}')
+plot(t_sim, X_sim(:,2), 'r--')
+ylabel('p_{em} [Pa]')
 
 subplot(513)
-plot(t_sim, X_sim(:,3))
+plot(simEngine.time, simEngine.X_Oim)
 hold on
-plot(simEngine.time, simEngine.X_Oim, 'r--')
-title('X_{Oim}')
+plot(t_sim, X_sim(:,3), 'r--')
+ylabel('X_{Oim} [-]')
 
 subplot(514)
-plot(t_sim, X_sim(:,4))
+plot(simEngine.time, simEngine.X_Oem)
 hold on
-plot(simEngine.time, simEngine.X_Oem, 'r--')
-title('X_{Oem}')
+plot(t_sim, X_sim(:,4), 'r--')
+ylabel('X_{Oem} [-]')
 
 subplot(515)
-plot(t_sim, X_sim(:,5))
+plot(simEngine.time, simEngine.n_t*pi/30)
 hold on
-plot(simEngine.time, simEngine.n_t*pi/30, 'r--')
-title('\omega_t')
+plot(t_sim, X_sim(:,5), 'r--')
+ylabel('\omega_t [rad/s]')
+xlabel('Time [s]')
 
+legend(["Simulink model", "MATLAB model"], 'Location', 'southeast')
+
+%% Export as PDF
+set(h,'Units','Inches');
+pos = get(h,'Position');
+set(h,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
+print(h,'Figures/compMatlabModel','-dpdf','-r0')
+
+%% Plot error
+
+h2 = figure(2);
+hold on
+all_x = unique([t_sim; simEngine.time]);
+
+refined_A = interp1(t_sim, X_sim(:,1), all_x);
+refined_B = interp1(simEngine.time, simEngine.p_im, all_x);
+plot(all_x, abs(refined_B - refined_A)/mean(simEngine.p_im))
+
+refined_A = interp1(t_sim, X_sim(:,2), all_x);
+refined_B = interp1(simEngine.time, simEngine.p_em, all_x);
+plot(all_x, abs(refined_B - refined_A)/mean(simEngine.p_em))
+
+refined_A = interp1(t_sim, X_sim(:,3), all_x);
+refined_B = interp1(simEngine.time, simEngine.X_Oim, all_x);
+plot(all_x, abs(refined_B - refined_A)/mean(simEngine.X_Oim))
+
+refined_A = interp1(t_sim, X_sim(:,4), all_x);
+refined_B = interp1(simEngine.time, simEngine.X_Oem, all_x);
+plot(all_x, abs(refined_B - refined_A)/mean(simEngine.X_Oem))
+
+refined_A = interp1(t_sim, X_sim(:,5), all_x);
+refined_B = interp1(simEngine.time, simEngine.n_t*pi/30, all_x);
+plot(all_x, abs(refined_B - refined_A)/mean(simEngine.n_t*pi/30))
+ylabel('Mean normalized absolute error')
+xlabel('Time [s]')
+
+legend(["p_{im}", "p_{em}", "X_{Oim}", "X_{Oem}", "\omega_t"], 'Location', 'northeast')
+
+%% Export as PDF
+set(h2,'Units','Inches');
+pos = get(h2,'Position');
+set(h2,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
+print(h2,'Figures/errorsMatlabModel','-dpdf','-r0')

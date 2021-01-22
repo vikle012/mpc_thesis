@@ -44,16 +44,24 @@ for n_e = 500:25:2000
     N_e = [N_e; n_e];
 end
 
-figure(1)
+h = figure(1);
+hold on
 plot(N_e, M_e)
 % axis([0 2500 0 2500])
 xlabel('Engine speed [rpm]')
-ylabel('Engine torque [Nm]')
-title('Torque speed map')
+ylabel('Maximum engine torque [Nm]')
+%title('Torque speed map')
 
 figure(2)
+hold on
 plot(N_e, M_e.*N_e*pi/30)
 % axis([0 2500 0 2500])
 xlabel('Engine speed [rpm]')
 ylabel('Maximum power [W]')
 title('Power speed map')
+
+%% Export as PDF
+% set(h,'Units','Inches');
+% pos = get(h,'Position');
+% set(h,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
+% print(h,'Figures/M_max_n','-dpdf','-r0')

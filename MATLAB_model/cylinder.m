@@ -59,7 +59,7 @@ function [W_ei, W_eo, T_em, X_Oe, lambda_O, lambda_air, M_e, x_r, T_1] = ...
     
     x_r = param.x_r_Init;
     T_1 = param.T_1_Init;
-    for i = 1:5
+    for i = 1:1 % Increase number of iterations for increase accuracy
         q_in = W_f*q_HV*(1 - x_r)/(W_f + W_ei);
         x_p = 1 + q_in*x_cv/(c_va*T_1*r_c^(gamma_a - 1));
         x_v = 1 + q_in*(1 - x_cv)/(c_pa*(q_in*x_cv/c_va + T_1*r_c^(gamma_a - 1)));
