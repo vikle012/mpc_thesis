@@ -21,7 +21,6 @@ classdef linPreview < matlab.System & matlab.system.mixin.Propagates
         ubg
         N
         T_s
-        constr
         func
         u_old
         iteration_counter
@@ -70,10 +69,10 @@ classdef linPreview < matlab.System & matlab.system.mixin.Propagates
             R = init_param.R;
             obj.N = init_param.N;
             
-            obj.constr.x_lbw = [0.5*model.p_amb; 0.5*model.p_amb; 0; 0; 100*pi/30]; 
-            obj.constr.x_ubw = [10*model.p_amb; 20*model.p_amb; 1; 1; 200000*pi/30];
-            obj.constr.u_lbw = [1; 0; 20];
-            obj.constr.u_ubw = [250; 100; 100];
+            x_lbw = [0.5*model.p_amb; 0.5*model.p_amb; 0; 0; 100*pi/30]; 
+            x_ubw = [10*model.p_amb; 20*model.p_amb; 1; 1; 200000*pi/30];
+            u_lbw = [1; 0; 20];
+            u_ubw = [250; 100; 100];
             
             X = casadi.SX.sym('X', 5);
             U = casadi.SX.sym('U', 3);
@@ -106,12 +105,6 @@ classdef linPreview < matlab.System & matlab.system.mixin.Propagates
             args.lbg = [];
             args.ubg = [];
             args.p   = [];
-            
-            % These constraints will be overwritten each iteration
-            x_lbw = obj.constr.x_lbw;
-            x_ubw = obj.constr.x_ubw;
-            u_lbw = obj.constr.u_lbw;
-            u_ubw = obj.constr.u_ubw;
             
             Utilde_old = casadi.MX.sym('Utilde_old', 3);
             args.p = [args.p; Utilde_old];
@@ -149,14 +142,14 @@ classdef linPreview < matlab.System & matlab.system.mixin.Propagates
                 args.w = [args.w; U_k];
                 args.lbw = [args.lbw; u_lbw];
                 args.ubw = [args.ubw; u_ubw]; 
-                args.w0 = [args.w0; zeros(3,1)];  
+                args.w0 = [args.w0; init_param.u_old];  
 
                 % Integrate using Euler Forward
-                [dx, q_k] = f(A, B, K_c, X_k, U_k, X_ref_k, U_ref_k, zeros(3,1));
+                [dx, q_k] = f(A, B, K_c, X_k, U_k, X_ref_k, U_ref_k, init_param.integral_action*Utilde_old);
                 X_k_next = X_k + obj.T_s*dx;
                 args.J = args.J + obj.T_s*q_k;
                               
-                Utilde_old = U_k - U_ref_0; % For integral action
+                Utilde_old = U_k - U_ref_k; % For integral action
                 
                 X_ref_k = casadi.MX.sym(['X_ref_' num2str(k+1)], 5);
                 args.p = [args.p; X_ref_k];
@@ -178,7 +171,8 @@ classdef linPreview < matlab.System & matlab.system.mixin.Propagates
             end
             
             % Last state objective term
-            V_f = X_k'*Q*X_k;
+            V_f = (X_k - X_ref_k)'*Q*(X_k - X_ref_k);
+            % V_f = X_k'*Q*X_k;
             args.J = args.J + obj.T_s*V_f;
             
             % Create an NLP solver function

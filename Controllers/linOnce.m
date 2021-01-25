@@ -64,44 +64,41 @@ classdef linOnce < matlab.System & matlab.system.mixin.Propagates
             R = init_param.R;
             N = init_param.N;
             
-            % find_trajectory with M_e = 850 and n_e = 1500
-            obj.linearize.x = [1.600956541442883e+05;1.652337953401179e+05;0.229092898954721;0.118475952323824;6.749056662121540e+03];
-            obj.linearize.u = [116.5057898440504; 14.175192224689594; 72.834842972803140]; 
+            % 80 kWh, 1200 rpm
+            P = 80000;
+            n_e = 1200;
+            [x_0, u_0] = find_trajectory(P/(n_e*pi/30), n_e, model);
+            obj.linearize.x = x_0;
+            obj.linearize.u = u_0; 
             
             x_lbw = [0.5*model.p_amb; 0.5*model.p_amb;  0; 0; 100*pi/30]; 
             x_ubw = [10*model.p_amb;  20*model.p_amb;   1; 1; 200000*pi/30];
             u_lbw = [1; 0; 20];
             u_ubw = [250; 100; 100];
-            xtilde_lbw = x_lbw - obj.linearize.x; 
-            xtilde_ubw = x_ubw - obj.linearize.x;
-            utilde_lbw = u_lbw - obj.linearize.u;
-            utilde_ubw = u_ubw - obj.linearize.u;
             
             % SX variables
             X = casadi.SX.sym('X',5);
             U = casadi.SX.sym('U',3);
-            n_e = casadi.SX.sym('n_e');
-            Xtilde = casadi.SX.sym('Xtilde', 5);
-            Utilde = casadi.SX.sym('Utilde', 3);
+            X_ref = casadi.SX.sym('X_ref', 5);
+            U_ref = casadi.SX.sym('U_ref', 3);
             Utilde_old = casadi.SX.sym('Utilde_old', 3);
             
             % Functions
-            A = casadi.Function('A', {X, U, n_e}, {jacobian(diesel_engine(X, U, n_e, model), X)});
-            B = casadi.Function('B', {X, U, n_e}, {jacobian(diesel_engine(X, U, n_e, model), U)});
-            K_c = casadi.Function('K_c', {X, U, n_e}, {diesel_engine(X, U, n_e, model)});
+            A = casadi.Function('A', {X, U}, {jacobian(diesel_engine(X, U, n_e, model), X)});
+            B = casadi.Function('B', {X, U}, {jacobian(diesel_engine(X, U, n_e, model), U)});
+            K_c = casadi.Function('K_c', {X, U}, {diesel_engine(X, U, n_e, model)});
 
             % Linearized continous time system
-            Xtilde_dot = A(obj.linearize.x, obj.linearize.u, n_e)*Xtilde + ...
-                         B(obj.linearize.x, obj.linearize.u, n_e)*Utilde + ...
-                         K_c(obj.linearize.x, obj.linearize.u, n_e);
+            Xtilde_dot = A(x_0, u_0)*(X - x_0) + B(x_0, u_0)*(U - u_0) + ...
+                K_c(x_0, u_0);
 
             % Objective function
-            L = Xtilde'*Q*Xtilde + ... 
-                (Utilde - Utilde_old)'*R*(Utilde - Utilde_old);
+            L = (X - X_ref)'*Q*(X - X_ref) + ... 
+                (U - U_ref - Utilde_old)'*R*(U - U_ref - Utilde_old);
 
             % Continuous time dynamics using diesel_engine.m
             f = casadi.Function('f', ...
-                {Xtilde, Utilde, Utilde_old, n_e}, {Xtilde_dot, L});
+                {X, U, X_ref, U_ref, Utilde_old}, {Xtilde_dot, L});
 
             % Start with an empty NLP
             args.w   = [];
@@ -114,52 +111,55 @@ classdef linOnce < matlab.System & matlab.system.mixin.Propagates
             args.ubg = [];
             args.p   = [];
 
+            X_ref = casadi.MX.sym('X_ref', 5);
+            args.p = [args.p; X_ref];
+            
+            U_ref = casadi.MX.sym('U_ref', 3);
+            args.p = [args.p; U_ref];
+            
             % "Lift" initial conditions
             Utilde_old = casadi.MX.sym('Utilde_old', 3);
             args.p = [args.p; Utilde_old];
             obj.u_old = init_param.u_old;
             
-            n_e = casadi.MX.sym('n_e');
-            args.p = [args.p; n_e];
-            
-            Xtilde_0 = casadi.MX.sym('Xtilde_0', 5);
-            args.w = [args.w; Xtilde_0];
+            X_0 = casadi.MX.sym('_0', 5);
+            args.w = [args.w; X_0];
             args.lbw = [args.lbw; zeros(5,1)];
             args.ubw = [args.ubw; zeros(5,1)];
             args.w0 = [args.w0; zeros(5,1)];        
             
             % Formulate the NLP
-            Xtilde_k = Xtilde_0;
+            X_k = X_0;
             for k=0:N-1
                 % New NLP variable for the control     
-                Utilde_k = casadi.MX.sym(['Utilde_' num2str(k)], 3);
-                args.w = [args.w; Utilde_k];
-                args.lbw = [args.lbw; utilde_lbw];
-                args.ubw = [args.ubw; utilde_ubw]; 
+                U_k = casadi.MX.sym(['U_' num2str(k)], 3);
+                args.w = [args.w; U_k];
+                args.lbw = [args.lbw; u_lbw];
+                args.ubw = [args.ubw; u_ubw]; 
                 args.w0 = [args.w0; zeros(3,1)];  
 
                 % Integrate using Euler Forward
-                [dx, q_k] = f(Xtilde_k, Utilde_k, Utilde_old, n_e);
-                Xtilde_k_next = Xtilde_k + T_s*dx;
+                [dx, q_k] = f(X_k, U_k, X_ref, U_ref, init_param.integral_action*Utilde_old);
+                X_k_next = X_k + T_s*dx;
                 args.J = args.J + T_s*q_k;
                               
-                Utilde_old = Utilde_k; % For integral action
+                Utilde_old = U_k - u_0; % For integral action
                 
                 % New NLP variable for state at end of interval
-                Xtilde_k = casadi.MX.sym(['Xtilde_' num2str(k+1)], 5);
-                args.w = [args.w; Xtilde_k];
-                args.lbw = [args.lbw; xtilde_lbw];
-                args.ubw = [args.ubw; xtilde_ubw];
+                X_k = casadi.MX.sym(['X_' num2str(k+1)], 5);
+                args.w = [args.w; X_k];
+                args.lbw = [args.lbw; x_lbw];
+                args.ubw = [args.ubw; x_ubw];
                 args.w0 = [args.w0; zeros(5,1)];       
 
                 % Add equality constraint
-                args.G = [args.G; Xtilde_k_next - Xtilde_k];
+                args.G = [args.G; X_k_next - X_k];
                 args.lbg = [args.lbg; zeros(5,1)];
                 args.ubg = [args.ubg; zeros(5,1)];    
             end
             
             % Last state objective term
-            V_f = Xtilde_k'*Q*Xtilde_k;
+            V_f = (X_k - X_ref)'*Q*(X_k - X_ref);
             args.J = args.J + T_s*V_f;
             
             % Create an NLP solver function
@@ -182,11 +182,12 @@ classdef linOnce < matlab.System & matlab.system.mixin.Propagates
             ubw = obj.ubx;
             solver = obj.casadi_solver;
             
-            p = [obj.u_old - obj.linearize.u; n_e];
-            % p = [u_ref - obj.u_old; n_e];
+            p = [x_ref; u_ref];
+            p = [p; obj.u_old - obj.linearize.u];
+            % p = [u_ref - obj.u_old];
 
-            lbw(1:5) = x - obj.linearize.x;
-            ubw(1:5) = x - obj.linearize.x;
+            lbw(1:5) = x;
+            ubw(1:5) = x;
             
             sol = solver('x0', w0, ...
                          'p', p, ...
@@ -194,10 +195,10 @@ classdef linOnce < matlab.System & matlab.system.mixin.Propagates
                          'ubx', ubw,...
                          'lbg', obj.lbg, ...
                          'ubg', obj.ubg);
-            wtilde_opt = full(sol.x);
-            utilde_opt = wtilde_opt(6:8);
+            w_opt = full(sol.x);
+            u_opt = w_opt(6:8);
             
-            u = utilde_opt + obj.linearize.u;
+            u = u_opt;
             
             % For integral action
             obj.u_old = u;

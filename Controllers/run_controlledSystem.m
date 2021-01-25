@@ -3,6 +3,7 @@ clc
 
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\MATLAB_model')
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\Controllers')
+addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WHTC')
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WahlstromErikssonTCDI_EGR_VGT')
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\CasADi\casadi-windows-matlabR2016a-v3.5.5')
 load parameterData
@@ -11,40 +12,26 @@ M_e_input = [800; 900];
 n_e_input = [1500; 1500];
 [x_ref, u_ref] = find_trajectory(M_e_input, n_e_input, model);
 
+control.u_egract = 0; % without EGR-actuator dynamics
+control.u_vgtact = 0; % without VGT-actuator dynamics
+
+%% Select Controller
+
+controller_object = 'linPreview';
+
+integral_action = 1;
+% 0: without integral action
+% 1: with integral action
+
 time_vector = [0 0.1]';
 simulation_time = 2;
 
-%%
-% figure(1)
-% for i = 1:5
-%    subplot(5,1,i)
-%    plot(time, x_ref(i,:))
-% end
-% 
-% figure(2)
-% for i = 1:3
-%    subplot(3,1,i)
-%    plot(time, u_ref(i,:))
-% end
+%% Tuning Parameters
 
-%%
+% Parameters required in set-up
 global init_param;
-
-control.u_egract = 0;
-% 1: with EGR-actuator dynamics
-% 0: without EGR-actuator dynamics
-
-control.u_vgtact = 0;
-% 1: with VGT-actuator dynamics
-% 0: without VGT-actuator dynamics
-
-init_param.n_e = n_e_input(1); % n_e_init
 init_param.model = model;
-
-%% Select Controller and Tune Parameters
-
-controller_object = 'linOnce';
-
+init_param.integral_action = integral_action;
 init_param.T_s = 0.01;
 init_param.N = 40;
 
@@ -63,7 +50,8 @@ init_param.R = diag([r1 r2 r3]);
 
 init_param.u_old = u_ref(:,1); % Not happy with this fix, but works
 
-%% Simulation
+%% Simulation Set-up
+
 simulate.T_s = init_param.T_s;
 
 if strcmp(controller_object, "linPreview")
@@ -112,11 +100,11 @@ simulate.x_r_Init = y.x_r;
 simulate.T_1_Init = y.T_1;
 % -------------------------------
 
-set_param('controlledSystem/MPC/MATLAB System', ...
-          'System', controller_object, ... % Change controller object here
-          'SimulateUsing', 'Interpreted execution');
-% save_system('controlledSystem/MPC/MATLAB System');
+% Simulink controller set-up
+set_param('controlledSystem/MPC/MATLAB System', 'System', ...
+    controller_object, 'SimulateUsing', 'Interpreted execution');
 set_param('controlledSystem', 'SimulationCommand', 'Update')
+
 % Simulation
 sim('controlledSystem', simulation_time)
 
