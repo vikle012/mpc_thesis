@@ -1,6 +1,10 @@
+%% Generates a maximum torque curve for stationary points
+
+load('parameterData')
 
 M_e = [];
 N_e = [];
+W_opt = [];
 
 for n_e = 500:25:2000
 
@@ -13,11 +17,12 @@ for n_e = 500:25:2000
     w = [X; U];                        % Optimization variables
 
     % Initial values/guess
-    w0 = [1.0e+05*1.9307; 1.0e+05*2.1069; 0.2120; 0.1109; 7.5804e+03; 127.4860; 63.2446; 40.5904];
-    
     if n_e == 800 || n_e == 825
         w0 = [150437.593727065;160060.761239722;0.221915115974491;0.0956202415346445;5642.68013104888; 131.017038028082;14.0825363615519;24.0798004681596];
-    end 
+    else
+        w0 = [1.0e+05*1.9307; 1.0e+05*2.1069; 0.2120; 0.1109; 7.5804e+03; 127.4860; 63.2446; 40.5904];
+    end
+    
     % Constraints on opt. variables
     lbw = [0.5*model.p_amb; 0.5*model.p_amb; 0; 0; 100*pi/30; 1; 0; 20]; 
     ubw = [10*model.p_amb; 20*model.p_amb; 1; 1; 200000*pi/30; 250; 100; 100];
@@ -38,29 +43,23 @@ for n_e = 500:25:2000
               'ubg', ubg);        % Upper constraint bound
 
     w_opt = full(solution.x);
-    x_opt = w_opt(1:5);
-    u_opt = w_opt(6:8);
+    W_opt = [W_opt w_opt];
     M_e = [M_e; -full(solution.f)];
     N_e = [N_e; n_e];
 end
 
+%% Plot
+
 h = figure(1);
 hold on
 plot(N_e, M_e)
-% axis([0 2500 0 2500])
+% plot(N_e, M_e, 'x') 
 xlabel('Engine speed [rpm]')
 ylabel('Maximum engine torque [Nm]')
-%title('Torque speed map')
 
-figure(2)
-hold on
-plot(N_e, M_e.*N_e*pi/30)
-% axis([0 2500 0 2500])
-xlabel('Engine speed [rpm]')
-ylabel('Maximum power [W]')
-title('Power speed map')
 
 %% Export as PDF
+
 % set(h,'Units','Inches');
 % pos = get(h,'Position');
 % set(h,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
