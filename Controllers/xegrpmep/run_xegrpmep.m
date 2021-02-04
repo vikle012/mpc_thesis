@@ -11,56 +11,49 @@ load parameterData
 M_e_input = [650; 2000];
 n_e_input = [1200; 1200];
 [x_ref, u_ref] = find_trajectory(M_e_input, n_e_input, model);
-time_vector = [0 0.1]';
 
 control.u_egract = 0; % without EGR-actuator dynamics
 control.u_vgtact = 0; % without VGT-actuator dynamics
 
+global init_param;
+init_param.n_e = n_e_input(1); % n_e_init
+init_param.model = model;
+
 %% Select Controller
 
-controller_object = 'SL_ref';
+controller_object = 'test_linReferenceEach';
 
-integral_action = 1;
+init_param.integral_action = 1;
 % 0: without integral action
 % 1: with integral action
 
-simulation_time = 3;
+time_vector = [0 0.1]';
+simulation_time = 2;
 
-%% Tuning Parameters
+%% Tune Parameters
 
-% Parameters required in set-up
-global init_param;
-init_param.model = model;
-init_param.integral_action = integral_action;
 init_param.T_s = 0.01;
 init_param.N = 40;
 
-q1 = 1*100/((0.5*model.p_amb + 10*model.p_amb)/2)^2;
-q2 = 1*100/((0.5*model.p_amb + 20*model.p_amb)/2)^2;
+q1 = 100/((0.5*model.p_amb + 10*model.p_amb)/2)^2;
+q2 = 100/((0.5*model.p_amb + 20*model.p_amb)/2)^2;
 q3 = 50/((0 + 1)/2)^2;
 q4 = 50/((0 + 1)/2)^2;
-q5 = 1*100/((100*pi/30 + 200000*pi/30)/2)^2;
+q5 = 100/((100*pi/30 + 200000*pi/30)/2)^2;
 
-r1 = 5/((1 + 250)/2)^2;
-r2 = 5/((0 + 100)/2)^2;
-r3 = 5/((20 + 100)/2)^2; 
-
-% Integral action
-s1 = 100/((1 + 250)/2)^2;
-s2 = 100/((0 + 100)/2)^2;
-s3 = 100/((20 + 100)/2)^2; 
+r1 = 20/((1 + 250)/2)^2;
+r2 = 20/((0 + 100)/2)^2;
+r3 = 20/((20 + 100)/2)^2; 
 
 init_param.Q = diag([q1 q2 q3 q4 q5]);
 init_param.R = diag([r1 r2 r3]);
-init_param.S = diag([s1 s2 s3]);
 
 init_param.u_old = u_ref(:,1); % Not happy with this fix, but works
 
-%% Simulation Set-up
-
+%% Simulation
 simulate.T_s = init_param.T_s;
 
-if or(strcmp(controller_object, "SLpreview_ref"), strcmp(controller_object, "SLpreview_current"))
+if strcmp(controller_object, "linPreview")
     % Not proud of this solution
     x_ref_all = [];
     u_ref_all = [];
@@ -98,25 +91,21 @@ simulate.utilde_egr1_Init   = 0;
 simulate.utilde_egr2_Init   = 0;
 simulate.utilde_vgt_Init    = 0;
 
-% Not used
-simulate.u_egr_Init = u_ref(2,1);
-simulate.u_vgt_Init = u_ref(3,1);
+simulate.u_egr_Init = u_ref(1,1);
+simulate.u_vgt_Init = u_ref(2,1);
 
-[~,y,~] = diesel_engine(x_ref(:,1), u_ref(:,1), n_e_input(1), model);
+[~,y,~] = diesel_engine(x_ref(:,1), u_ref(:,1), init_param.n_e, model);
 simulate.x_r_Init = y.x_r;
 simulate.T_1_Init = y.T_1;
 % -------------------------------
 
-% Open system
-open_system('controlledSystem')
-
 % Simulink controller set-up
-set_param('controlledSystem/MPC/MATLAB System', 'System', ...
+set_param('xegrpmep/MPC/MATLAB System', 'System', ...
     controller_object, 'SimulateUsing', 'Interpreted execution');
-set_param('controlledSystem', 'SimulationCommand', 'Update')
+set_param('xegrpmep', 'SimulationCommand', 'Update')
 
 % Simulation
-sim('controlledSystem', simulation_time)
+sim('xegrpmep', simulation_time)
 
 %% Plotting
 

@@ -181,3 +181,47 @@ set(h2,'Units','Inches');
 pos = get(h2,'Position');
 set(h2,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
 print(h2,'Figures/errorsMatlabModel','-dpdf','-r0')
+
+%%
+M_e_sim = zeros(length(t_sim), 1);
+lambda_O_sim = zeros(length(t_sim), 1);
+
+for i = 1:length(t_sim)
+    [~, y, ~] = diesel_engine(X_sim(i,:), U, n_e, model);
+    M_e_sim(i) = y.M_e;
+    lambda_O_sim(i) = y.lambda_O;
+end
+% 
+% h3 = figure;
+% yyaxis left
+% hold on
+% plot(tout, simM_e)
+% plot(t_sim, M_e_sim, 'r--')
+% ylabel('M_e [Nm]')
+% 
+% yyaxis right
+% hold on
+% plot(tout, simlambda)
+% plot(t_sim, lambda_O_sim, 'r--')
+% ylabel('\lambda_O [-]')
+
+h3 = figure;
+subplot(2,1,1)
+hold on
+plot(tout, simM_e)
+plot(t_sim, M_e_sim, 'r--')
+ylabel('M_e [Nm]')
+
+subplot(2,1,2)
+hold on
+plot(tout, simlambda)
+plot(t_sim, lambda_O_sim, 'r--')
+ylabel('\lambda_O [-]')
+xlabel('Time [s]')
+legend(["Simulink model", "MATLAB model"], 'Location', 'northeast')
+
+%% Export as PDF
+set(h3,'Units','Inches');
+pos = get(h3,'Position');
+set(h3,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
+print(h3,'Figures/morecompMatlabModel','-dpdf','-r0')
