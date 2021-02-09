@@ -205,47 +205,52 @@ classdef SLpreview_current < matlab.System & matlab.system.mixin.Propagates
 
         function u = stepImpl(obj,x,t,n_e,x_ref,u_ref)  
             tic
+            
+            if x_ref(1) == 0
+                obj.u_old = [1; obj.u_old(2:3)];
+                u = obj.u_old;
+            else
+                w0 = obj.x0;
+                lbw = obj.lbx;
+                ubw = obj.ubx;            
+                solver = obj.casadi_solver;
 
-            w0 = obj.x0;
-            lbw = obj.lbx;
-            ubw = obj.ubx;            
-            solver = obj.casadi_solver;
-            
-            obj.iteration_counter = obj.iteration_counter + 1;
-            it = obj.iteration_counter;
-            
-            % Linearize
-            A = obj.func.A(x, obj.u_old, n_e);
-            B = obj.func.B(x, obj.u_old, n_e);
-            K_c = obj.func.K_c(x, obj.u_old, n_e);
-            
-            % Independent parameters
-            p = obj.u_old;
-            p = [p; A(:)];
-            p = [p; B(:)];
-            p = [p; K_c];
-            
-            % Update references
-            for i = 0:obj.N
-                p = [p; x_ref(:, it + i); u_ref(:, it + i)];
+                obj.iteration_counter = obj.iteration_counter + 1;
+                it = obj.iteration_counter;
+
+                % Linearize
+                A = obj.func.A(x, obj.u_old, n_e);
+                B = obj.func.B(x, obj.u_old, n_e);
+                K_c = obj.func.K_c(x, obj.u_old, n_e);
+
+                % Independent parameters
+                p = obj.u_old;
+                p = [p; A(:)];
+                p = [p; B(:)];
+                p = [p; K_c];
+
+                % Update references
+                for i = 0:obj.N
+                    p = [p; x_ref(:, it + i); u_ref(:, it + i)];
+                end
+
+                lbw(1:5) = x;
+                ubw(1:5) = x;
+
+                sol = solver('x0', w0, ...
+                             'p', p, ...
+                             'lbx', lbw, ...
+                             'ubx', ubw,...
+                             'lbg', obj.lbg, ...
+                             'ubg', obj.ubg);
+                w_opt = full(sol.x);
+                u_opt = w_opt(6:8);
+
+                u = u_opt;
+
+                % For integral action
+                obj.u_old = u;
             end
-            
-            lbw(1:5) = x;
-            ubw(1:5) = x;
-            
-            sol = solver('x0', w0, ...
-                         'p', p, ...
-                         'lbx', lbw, ...
-                         'ubx', ubw,...
-                         'lbg', obj.lbg, ...
-                         'ubg', obj.ubg);
-            w_opt = full(sol.x);
-            u_opt = w_opt(6:8);
-            
-            u = u_opt;
-            
-            % For integral action
-            obj.u_old = u;
             toc
         end
 

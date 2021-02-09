@@ -8,9 +8,10 @@ addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WahlstromErikssonTCDI_EGR_VG
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\CasADi\casadi-windows-matlabR2016a-v3.5.5')
 load parameterData
 
-M_e_input = [650; 2000];
+M_e_input = [40; 80]; % Normalized values
 n_e_input = [1200; 1200];
-[x_ref, u_ref] = find_trajectory(M_e_input, n_e_input, model);
+[x_ref, u_ref] = reference_generator(M_e_input, n_e_input);
+
 time_vector = [0 0.1]';
 
 control.u_egract = 0; % without EGR-actuator dynamics
@@ -24,7 +25,7 @@ integral_action = 1;
 % 0: without integral action
 % 1: with integral action
 
-simulation_time = 3;
+simulation_time = 10;
 
 %% Tuning Parameters
 
@@ -83,9 +84,9 @@ if or(strcmp(controller_object, "SLpreview_ref"), strcmp(controller_object, "SLp
     simulate.x_ref = timeseries(x_ref_all, 0);
     simulate.u_ref = timeseries(u_ref_all, 0);
 else
-    simulate.n_e = timeseries(n_e_input, time_vector); % Row vector since "From Workspace"
-    simulate.x_ref = timeseries(x_ref, time_vector);
+    simulate.x_ref = timeseries(x_ref, time_vector); % Row vector since "From Workspace"
     simulate.u_ref = timeseries(u_ref, time_vector);
+    simulate.n_e = timeseries(n_e_input, time_vector);
 end
 
 % --- Simulink initialization ---
@@ -121,51 +122,47 @@ sim('controlledSystem', simulation_time)
 %% Plotting
 
 x_data = [simp_im, simp_em, simX_Oim, simX_Oem, simn_t*pi/30];
-x_titles = ["p_{im}", "p_{em}", "X_{Oim}", "X_{Oem}", "\omega_t"];
+x_titles = ["p_{im} [Pa]", "p_{em} [Pa]", "X_{Oim} [-]", "X_{Oem} [-]", "\omega_t [rad/s]"];
 
 figure(1)
 for i = 1:5
     subplot(5,1,i)
     hold on
-    plot(tout, x_data(:,i))
+    plot(simTime, x_data(:,i))
     stairs([time_vector; simulation_time], [x_ref(i,1); x_ref(i,2); x_ref(i,2)], 'k:');
-    title(x_titles(i))
+    ylabel(x_titles(i))
 end
+xlabel('Time [s]')
 
-u_delta = [];
-u_egr = [];
-u_vgt = [];
-for i = 1:(simulation_time/init_param.T_s + 1)
-   u_delta = [u_delta; simu_delta(:,:,i)];
-   u_egr = [u_egr; simu_egr(:,:,i)];
-   u_vgt = [u_vgt; simu_vgt(:,:,i)];
-end
+u_delta = squeeze(simu_delta);
+u_egr = squeeze(simu_egr);
+u_vgt = squeeze(simu_vgt);
+
 u_data = [u_delta, u_egr, u_vgt];
-u_titles = ["u_\delta", "u_{egr}", "u_{vgt}"];
+u_titles = ["u_\delta [mg/cycle]", "u_{egr} [%]", "u_{vgt} [%]"];
 
 figure(2)
 for i = 1:3
     subplot(3,1,i)
     hold on
-    stairs(linspace(0, simulation_time, simulation_time/init_param.T_s + 1), u_data(:,i))
+    stairs(simTime, u_data(:,i))
     stairs([time_vector; simulation_time], [u_ref(i,1); u_ref(i,2); u_ref(i,2)], 'k:');
-    title(u_titles(i))
+    ylabel(u_titles(i))
 end
+xlabel('Time [s]')
 
-M_e = [];
-lambda_O = [];
-for i = 1:length(tout)
-   M_e = [M_e; simM_e(:,:,i)];
-   lambda_O = [lambda_O; simlambda(:,:,i)];
-end
+M_e = squeeze(simM_e);
+lambda_O = squeeze(simlambda);
 
 figure(3)
 hold on
-plot(tout, M_e)
-stairs([time_vector; simulation_time], [M_e_input; M_e_input(end)], 'k:');
-title('M_e')
+plot(simTime, M_e)
+% stairs([time_vector; simulation_time], [M_e_input; M_e_input(end)], 'k:');
+ylabel('M_e [Nm]')
+xlabel('Time [s]')
 
 figure(4)
 hold on
-plot(tout, lambda_O)
-title('\lambda_O')
+plot(simTime, lambda_O)
+ylabel('\lambda_O [-]')
+xlabel('Time [s]')

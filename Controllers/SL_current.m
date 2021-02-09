@@ -193,40 +193,45 @@ classdef SL_current < matlab.System & matlab.system.mixin.Propagates
         function u = stepImpl(obj,x,t,n_e,x_ref,u_ref)  
             tic
 
-            w0 = obj.x0;
-            lbw = obj.lbx;
-            ubw = obj.ubx;            
-            solver = obj.casadi_solver;
-            
-            % Linearize on form: xtilde_dot = A*xtilde + B*utilde + K_c
-            A = obj.func.A(x, obj.u_old, n_e);
-            B = obj.func.B(x, obj.u_old, n_e);
-            K_c = obj.func.K_c(x, obj.u_old, n_e);
-            
-            % Independent parameters
-            p = full(A(:));                 % A = 5x5
-            p = [p; full(B(:))];            % B = 5x3
-            p = [p; K_c];                   % K_c = 5x1
-            p = [p; x_ref];                 
-            p = [p; u_ref];
-            p = [p; obj.u_old];            % Utilde_old = 3x1
-            
-            lbw(1:5) = x;
-            ubw(1:5) = x;
-                       
-            sol = solver('x0', w0, ...
-                         'p', p, ...
-                         'lbx', lbw, ...
-                         'ubx', ubw,...
-                         'lbg', obj.lbg, ...
-                         'ubg', obj.ubg);
-            w_opt = full(sol.x);
-            u_opt = w_opt(6:8);
-            
-            u = u_opt;
-            
-            % For integral action
-            obj.u_old = u;
+            if x_ref(1) == 0
+                obj.u_old = [1; obj.u_old(2:3)];
+                u = obj.u_old;
+            else
+                w0 = obj.x0;
+                lbw = obj.lbx;
+                ubw = obj.ubx;            
+                solver = obj.casadi_solver;
+
+                % Linearize on form: xtilde_dot = A*xtilde + B*utilde + K_c
+                A = obj.func.A(x, obj.u_old, n_e);
+                B = obj.func.B(x, obj.u_old, n_e);
+                K_c = obj.func.K_c(x, obj.u_old, n_e);
+
+                % Independent parameters
+                p = full(A(:));                 % A = 5x5
+                p = [p; full(B(:))];            % B = 5x3
+                p = [p; K_c];                   % K_c = 5x1
+                p = [p; x_ref];                 
+                p = [p; u_ref];
+                p = [p; obj.u_old];            % Utilde_old = 3x1
+
+                lbw(1:5) = x;
+                ubw(1:5) = x;
+
+                sol = solver('x0', w0, ...
+                             'p', p, ...
+                             'lbx', lbw, ...
+                             'ubx', ubw,...
+                             'lbg', obj.lbg, ...
+                             'ubg', obj.ubg);
+                w_opt = full(sol.x);
+                u_opt = w_opt(6:8);
+
+                u = u_opt;
+
+                % For integral action
+                obj.u_old = u;
+            end
             toc
         end
 

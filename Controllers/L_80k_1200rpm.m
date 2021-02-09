@@ -69,7 +69,8 @@ classdef L_80k_1200rpm < matlab.System & matlab.system.mixin.Propagates
             % 80 kW, 1200 rpm -> 636 Nm
             P = 80000;
             n_e = 1200;
-            [x_0, u_0] = find_trajectory(P/(n_e*pi/30), n_e, model);
+            % P/(n_e*pi/30)
+            [x_0, u_0] = reference_generator(20, n_e);
             
             x_lbw = [0.5*model.p_amb; 0.5*model.p_amb;  0; 0; 100*pi/30]; 
             x_ubw = [10*model.p_amb;  20*model.p_amb;   1; 1; 200000*pi/30];
@@ -177,30 +178,35 @@ classdef L_80k_1200rpm < matlab.System & matlab.system.mixin.Propagates
         function u = stepImpl(obj,x,t,n_e,x_ref,u_ref)
             tic
             
-            w0 = obj.x0;
-            lbw = obj.lbx;
-            ubw = obj.ubx;
-            solver = obj.casadi_solver;
-            
-            p = [x_ref; u_ref];
-            p = [p; obj.u_old];
+            if x_ref(1) == 0
+                obj.u_old = [1; obj.u_old(2:3)];
+                u = obj.u_old;
+            else
+                w0 = obj.x0;
+                lbw = obj.lbx;
+                ubw = obj.ubx;
+                solver = obj.casadi_solver;
 
-            lbw(1:5) = x;
-            ubw(1:5) = x;
-            
-            sol = solver('x0', w0, ...
-                         'p', p, ...
-                         'lbx', lbw, ...
-                         'ubx', ubw,...
-                         'lbg', obj.lbg, ...
-                         'ubg', obj.ubg);
-            w_opt = full(sol.x);
-            u_opt = w_opt(6:8);
-            
-            u = u_opt;
-            
-            % For integral action
-            obj.u_old = u;
+                p = [x_ref; u_ref];
+                p = [p; obj.u_old];
+
+                lbw(1:5) = x;
+                ubw(1:5) = x;
+
+                sol = solver('x0', w0, ...
+                             'p', p, ...
+                             'lbx', lbw, ...
+                             'ubx', ubw,...
+                             'lbg', obj.lbg, ...
+                             'ubg', obj.ubg);
+                w_opt = full(sol.x);
+                u_opt = w_opt(6:8);
+
+                u = u_opt;
+
+                % For integral action
+                obj.u_old = u;
+            end
             toc
         end
 
