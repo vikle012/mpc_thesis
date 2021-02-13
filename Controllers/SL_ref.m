@@ -74,6 +74,7 @@ classdef SL_ref < matlab.System & matlab.system.mixin.Propagates
             
             A = casadi.SX.sym('A', 5, 5);
             B = casadi.SX.sym('B', 5, 3);
+            K_c = casadi.SX.sym('K_c', 5);
             X = casadi.SX.sym('X', 5);
             U = casadi.SX.sym('U', 3);
             X_ref = casadi.SX.sym('X_ref', 5);
@@ -81,7 +82,7 @@ classdef SL_ref < matlab.System & matlab.system.mixin.Propagates
             U_old = casadi.SX.sym('U_old', 3);
             
             % Linearized continous time system
-            Xtilde_dot = A*(X - X_ref) + B*(U - U_ref);
+            Xtilde_dot = A*(X - X_ref) + B*(U - U_ref) + K_c;
 
             % Objective function
             L = (X - X_ref)'*Q*(X - X_ref) + ... 
@@ -89,7 +90,7 @@ classdef SL_ref < matlab.System & matlab.system.mixin.Propagates
                 init_param.integral_action*(U - U_old)'*S*(U - U_old);
             
             f = casadi.Function('f', ...
-                {A, B, X, U, X_ref, U_ref U_old}, {Xtilde_dot, L});
+                {A, B, K_c, X, U, X_ref, U_ref U_old}, {Xtilde_dot, L});
              
             % Start with an empty NLP
             args.w   = [];
@@ -107,6 +108,9 @@ classdef SL_ref < matlab.System & matlab.system.mixin.Propagates
             
             B = casadi.MX.sym('B', 5, 3);
             args.p = [args.p; B(:)];
+            
+            K_c = casadi.MX.sym('K_c', 5);
+            args.p = [args.p; K_c];
             
             X_ref = casadi.MX.sym('X_ref', 5);
             args.p = [args.p; X_ref];
@@ -136,7 +140,7 @@ classdef SL_ref < matlab.System & matlab.system.mixin.Propagates
                 args.w0 = [args.w0; zeros(3,1)];  
 
                 % Integrate using Euler Forward
-                [dx, q_k] = f(A, B, X_k, U_k, X_ref, U_ref, U_old);
+                [dx, q_k] = f(A, B, K_c, X_k, U_k, X_ref, U_ref, U_old);
                 X_k_next = X_k + T_s*dx;
                 args.J = args.J + T_s*q_k;
                               
@@ -177,12 +181,14 @@ classdef SL_ref < matlab.System & matlab.system.mixin.Propagates
                 {jacobian(diesel_engine(X, U, n_e, model), X)});
             obj.func.B = casadi.Function('B', {X, U, n_e}, ...
                 {jacobian(diesel_engine(X, U, n_e, model), U)});
+            [dx, ~, ~] = diesel_engine(X, U, n_e, model);
+            obj.func.K_c = casadi.Function('K_c', {X, U, n_e}, {dx});
         end
 
         function u = stepImpl(obj,x,t,n_e,x_ref,u_ref)  
             tic
             
-            if x_ref(1) == 0
+            if x_ref(1) < 0
                 obj.u_old = [1; obj.u_old(2:3)];
                 u = obj.u_old;
             else
@@ -194,9 +200,11 @@ classdef SL_ref < matlab.System & matlab.system.mixin.Propagates
                 % Linearize
                 A = obj.func.A(x_ref, u_ref, n_e);
                 B = obj.func.B(x_ref, u_ref, n_e);
+                K_c = obj.func.K_c(x_ref, u_ref, n_e);
                 % Independent parameters
                 p = full(A(:));                 % A = 5x5
                 p = [p; full(B(:))];            % B = 5x3
+                p = [p; K_c];                   % K_c = 5x1
                 p = [p; x_ref];
                 p = [p; u_ref];
                 p = [p; obj.u_old];     % Utilde_old = 3x1

@@ -1,4 +1,4 @@
-classdef L_80k_1200rpm < matlab.System & matlab.system.mixin.Propagates
+classdef Lpreview < matlab.System & matlab.system.mixin.Propagates
     % untitled Add summary here
     %
     % This template includes the minimum set of functions required
@@ -19,7 +19,11 @@ classdef L_80k_1200rpm < matlab.System & matlab.system.mixin.Propagates
         ubx
         lbg
         ubg
+        N
+        T_s
+        func
         u_old
+        iteration_counter
     end
 
     methods (Access = protected)
@@ -57,9 +61,11 @@ classdef L_80k_1200rpm < matlab.System & matlab.system.mixin.Propagates
             import casadi.*
             global init_param;
             
+            obj.iteration_counter = 0;
+            
             model = init_param.model;
-            T_s = init_param.T_s;
-            N = init_param.N;
+            obj.T_s = init_param.T_s;
+            obj.N = init_param.N;
             
             % Weight matrices
             Q = init_param.Q;
@@ -69,15 +75,13 @@ classdef L_80k_1200rpm < matlab.System & matlab.system.mixin.Propagates
             % 80 kW, 1200 rpm -> 636 Nm
             P = 80000;
             n_e = 1200;
-            % P/(n_e*pi/30)
-            [x_0, u_0] = reference_generator(20, n_e);
+            [x_0, u_0] = reference_generator(P/(n_e*pi/30), n_e);
             
-            x_lbw = [0.5*model.p_amb; 0.5*model.p_amb;  0; 0; 100*pi/30]; 
-            x_ubw = [10*model.p_amb;  20*model.p_amb;   1; 1; 200000*pi/30];
+            x_lbw = [0.5*model.p_amb; 0.5*model.p_amb; 0; 0; 100*pi/30]; 
+            x_ubw = [10*model.p_amb; 20*model.p_amb; 1; 1; 200000*pi/30];
             u_lbw = [1; 0; 20];
             u_ubw = [250; 100; 100];
             
-            % SX variables
             X = casadi.SX.sym('X', 5);
             U = casadi.SX.sym('U', 3);
             X_ref = casadi.SX.sym('X_ref', 5);
@@ -96,11 +100,10 @@ classdef L_80k_1200rpm < matlab.System & matlab.system.mixin.Propagates
             L = (X - X_ref)'*Q*(X - X_ref) + ... 
                 (U - U_ref)'*R*(U - U_ref) + ...
                 init_param.integral_action*(U - U_old)'*S*(U - U_old);
-
-            % Continuous time dynamics using diesel_engine.m
+            
             f = casadi.Function('f', ...
                 {X, U, X_ref, U_ref, U_old}, {Xtilde_dot, L});
-
+             
             % Start with an empty NLP
             args.w   = [];
             args.w0  = [];
@@ -111,40 +114,48 @@ classdef L_80k_1200rpm < matlab.System & matlab.system.mixin.Propagates
             args.lbg = [];
             args.ubg = [];
             args.p   = [];
-
-            X_ref = casadi.MX.sym('X_ref', 5);
-            args.p = [args.p; X_ref];
             
-            U_ref = casadi.MX.sym('U_ref', 3);
-            args.p = [args.p; U_ref];
-            
-            % "Lift" initial conditions
             U_old = casadi.MX.sym('U_old', 3);
             args.p = [args.p; U_old];
             obj.u_old = init_param.u_old;
             
+            % Initialize OCP            
             X_0 = casadi.MX.sym('X_0', 5);
             args.w = [args.w; X_0];
             args.lbw = [args.lbw; zeros(5,1)];
             args.ubw = [args.ubw; zeros(5,1)];
-            args.w0 = [args.w0; zeros(5,1)];        
+            args.w0 = [args.w0; zeros(5,1)];
+            
+            X_ref_0 = casadi.MX.sym('X_ref_0', 5);
+            args.p = [args.p; X_ref_0];
+            
+            U_ref_0 = casadi.MX.sym('U_ref_0', 3);
+            args.p = [args.p; U_ref_0];
             
             % Formulate the NLP
             X_k = X_0;
-            for k=0:N-1
+            X_ref_k = X_ref_0;
+            U_ref_k = U_ref_0;
+            for k=0:obj.N-1
                 % New NLP variable for the control     
                 U_k = casadi.MX.sym(['U_' num2str(k)], 3);
                 args.w = [args.w; U_k];
                 args.lbw = [args.lbw; u_lbw];
                 args.ubw = [args.ubw; u_ubw]; 
-                args.w0 = [args.w0; zeros(3,1)];  
+                args.w0 = [args.w0; init_param.u_old];  
 
                 % Integrate using Euler Forward
-                [dx, q_k] = f(X_k, U_k, X_ref, U_ref, U_old);
-                X_k_next = X_k + T_s*dx;
-                args.J = args.J + T_s*q_k;
+                [dx, q_k] = f(X_k, U_k, X_ref_k, U_ref_k, U_old);
+                X_k_next = X_k + obj.T_s*dx;
+                args.J = args.J + obj.T_s*q_k;
                               
                 U_old = U_k; % For integral action
+                
+                X_ref_k = casadi.MX.sym(['X_ref_' num2str(k+1)], 5);
+                args.p = [args.p; X_ref_k];
+            
+                U_ref_k = casadi.MX.sym(['U_ref_' num2str(k+1)], 3);
+                args.p = [args.p; U_ref_k];
                 
                 % New NLP variable for state at end of interval
                 X_k = casadi.MX.sym(['X_' num2str(k+1)], 5);
@@ -156,39 +167,47 @@ classdef L_80k_1200rpm < matlab.System & matlab.system.mixin.Propagates
                 % Add equality constraint
                 args.G = [args.G; X_k_next - X_k];
                 args.lbg = [args.lbg; zeros(5,1)];
-                args.ubg = [args.ubg; zeros(5,1)];    
+                args.ubg = [args.ubg; zeros(5,1)];  
             end
             
             % Last state objective term
-            V_f = (X_k - X_ref)'*Q*(X_k - X_ref);
-            args.J = args.J + T_s*V_f;
+            V_f = (X_k - X_ref_k)'*Q*(X_k - X_ref_k);
+            args.J = args.J + obj.T_s*V_f;
             
             % Create an NLP solver function
             qp = struct('f', args.J, 'x', args.w, 'p', args.p, 'g', args.G);
             solver = casadi.qpsol('solver', 'qpoases', qp);
-
+            
             obj.casadi_solver = solver;
             obj.x0 = args.w0;
             obj.lbx = args.lbw;
             obj.ubx = args.ubw;
             obj.lbg = args.lbg;
-            obj.ubg = args.ubg;
+            obj.ubg = args.ubg; 
         end
 
-        function u = stepImpl(obj,x,t,n_e,x_ref,u_ref)
+        function u = stepImpl(obj,x,t,n_e,x_ref,u_ref)  
             tic
             
-            if x_ref(1) == 0
+            if x_ref(1) < 0
                 obj.u_old = [1; obj.u_old(2:3)];
                 u = obj.u_old;
             else
                 w0 = obj.x0;
                 lbw = obj.lbx;
-                ubw = obj.ubx;
+                ubw = obj.ubx;            
                 solver = obj.casadi_solver;
 
-                p = [x_ref; u_ref];
-                p = [p; obj.u_old];
+                obj.iteration_counter = obj.iteration_counter + 1;
+                it = obj.iteration_counter;
+
+                % Independent parameters
+                p = obj.u_old;
+
+                % Update references
+                for i = 0:obj.N
+                    p = [p; x_ref(:, it + i); u_ref(:, it + i)];
+                end
 
                 lbw(1:5) = x;
                 ubw(1:5) = x;

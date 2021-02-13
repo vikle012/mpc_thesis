@@ -28,17 +28,29 @@ u3_lut = casadi.interpolant('LUT','linear',{M_e_axis, n_e_axis},u3_table_data(:)
 x_ref = zeros(5, length(M_e_norm));
 u_ref = zeros(3, length(M_e_norm));
 for i = 1:length(M_e_norm)
-    ref = [M_e_norm(i) n_e_ref(i)];
-    
-    x_ref(1,i) = full(x1_lut(ref));
-    x_ref(2,i) = full(x2_lut(ref));
-    x_ref(3,i) = full(x3_lut(ref));
-    x_ref(4,i) = full(x4_lut(ref));
-    x_ref(5,i) = full(x5_lut(ref));
-    
-    u_ref(1,i) = full(u1_lut(ref));
-    u_ref(2,i) = full(u2_lut(ref));
-    u_ref(3,i) = full(u3_lut(ref));
+    if M_e_norm(i) < 0
+        x_ref(1,i) = -1;
+        x_ref(2,i) = -1;
+        x_ref(3,i) = -1;
+        x_ref(4,i) = -1;
+        x_ref(5,i) = -1;
+
+        u_ref(1,i) = -1;
+        u_ref(2,i) = -1;
+        u_ref(3,i) = -1;
+    else
+        ref = [M_e_norm(i) n_e_ref(i)];
+
+        x_ref(1,i) = full(x1_lut(ref));
+        x_ref(2,i) = full(x2_lut(ref));
+        x_ref(3,i) = full(x3_lut(ref));
+        x_ref(4,i) = full(x4_lut(ref));
+        x_ref(5,i) = full(x5_lut(ref));
+
+        u_ref(1,i) = full(u1_lut(ref));
+        u_ref(2,i) = full(u2_lut(ref));
+        u_ref(3,i) = full(u3_lut(ref));
+    end
 end
 
 end

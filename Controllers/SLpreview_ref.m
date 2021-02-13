@@ -205,7 +205,7 @@ classdef SLpreview_ref < matlab.System & matlab.system.mixin.Propagates
         function u = stepImpl(obj,x,t,n_e,x_ref,u_ref)  
             tic
             
-            if x_ref(1) == 0
+            if x_ref(1) < 0
                 obj.u_old = [1; obj.u_old(2:3)];
                 u = obj.u_old;
             else
