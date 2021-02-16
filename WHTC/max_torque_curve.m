@@ -52,7 +52,7 @@ end
 
 h = figure(1);
 hold on
-plot(N_e, M_e)
+p = plot(N_e, M_e, 'k');
 % plot(N_e, M_e, 'x') 
 xlabel('Engine speed [rpm]')
 ylabel('Maximum engine torque [Nm]')
