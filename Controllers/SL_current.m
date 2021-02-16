@@ -21,6 +21,7 @@ classdef SL_current < matlab.System & matlab.system.mixin.Propagates
         ubg
         func
         u_old
+        A_old
     end
 
     methods (Access = protected)
@@ -201,14 +202,22 @@ classdef SL_current < matlab.System & matlab.system.mixin.Propagates
                 lbw = obj.lbx;
                 ubw = obj.ubx;            
                 solver = obj.casadi_solver;
-
+                
                 % Linearize on form: xtilde_dot = A*xtilde + B*utilde + K_c
                 A = obj.func.A(x, obj.u_old, n_e);
                 B = obj.func.B(x, obj.u_old, n_e);
                 K_c = obj.func.K_c(x, obj.u_old, n_e);
+                
+                A = full(A(:));
+                for i = 1:length(A)
+                   if isnan(A(i))
+                      A(i) = obj.A_old(i); 
+                   end
+                end
+                obj.A_old = A;
 
                 % Independent parameters
-                p = full(A(:));                 % A = 5x5
+                p = A;                 % A = 5x5
                 p = [p; full(B(:))];            % B = 5x3
                 p = [p; K_c];                   % K_c = 5x1
                 p = [p; x_ref];                 
