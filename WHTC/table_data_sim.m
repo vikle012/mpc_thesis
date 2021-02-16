@@ -14,8 +14,8 @@ simU.u_vgt=[0 u3_table_data(1,index)];
 % --- Simulink initialization ---
 model.p_im_Init          = x1_table_data(1,index);
 model.p_em_Init          = x2_table_data(1,index);
-model.X_Oim_Init         = x3_table_data(1,index);
-model.X_Oem_Init         = x4_table_data(1,index);
+model.X_Oim_Init         = x3_table_data(1,index); % Need to change 
+model.X_Oem_Init         = x4_table_data(1,index); % init in model as well
 model.omega_t_Init       = x5_table_data(1,index);
 model.utilde_egr1_Init   = 0;
 model.utilde_egr2_Init   = 0;
@@ -24,7 +24,8 @@ model.utilde_vgt_Init    = 0;
 model.uInit_egr = u2_table_data(1,index);
 model.uInit_vgt = u3_table_data(1,index);
 
-X = [x1_table_data(1,index); x2_table_data(1,index); x3_table_data(1,index); x5_table_data(1,index); x5_table_data(1,index)];
+X = [x1_table_data(1,index); x2_table_data(1,index); x3_table_data(1,index); ...
+     x5_table_data(1,index); x5_table_data(1,index)];
 U = [u1_table_data(1,index); u2_table_data(1,index); u3_table_data(1,index)];
 
 [~,y,~] = diesel_engine(X, U, at_ne, model);
