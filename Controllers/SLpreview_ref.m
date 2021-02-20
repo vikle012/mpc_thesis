@@ -24,6 +24,8 @@ classdef SLpreview_ref < matlab.System & matlab.system.mixin.Propagates
         func
         u_old
         iteration_counter
+        x_ref_k
+        u_ref_k
     end
 
     methods (Access = protected)
@@ -205,7 +207,10 @@ classdef SLpreview_ref < matlab.System & matlab.system.mixin.Propagates
         function u = stepImpl(obj,x,t,n_e,x_ref,u_ref)  
             tic
             
-            if x_ref(1) < 0
+            obj.iteration_counter = obj.iteration_counter + 1;
+            it = obj.iteration_counter;
+            
+            if x_ref(1, it) < 0
                 obj.u_old = [1; obj.u_old(2:3)];
                 u = obj.u_old;
             else
@@ -213,9 +218,6 @@ classdef SLpreview_ref < matlab.System & matlab.system.mixin.Propagates
                 lbw = obj.lbx;
                 ubw = obj.ubx;            
                 solver = obj.casadi_solver;
-
-                obj.iteration_counter = obj.iteration_counter + 1;
-                it = obj.iteration_counter;
 
                 % Linearize system
                 A = obj.func.A(x_ref(:, it), u_ref(:, it), n_e);
@@ -230,7 +232,17 @@ classdef SLpreview_ref < matlab.System & matlab.system.mixin.Propagates
 
                 % Update references
                 for i = 0:obj.N
-                    p = [p; x_ref(:, it + i); u_ref(:, it + i)];
+                    if x_ref(:, it + i) < 0
+                        x_ref_ki = obj.x_ref_k;
+                        u_ref_ki = obj.u_ref_k;
+                    else
+                        x_ref_ki = x_ref(:, it + i);
+                        u_ref_ki = u_ref(:, it + i);
+                        
+                        obj.x_ref_k = x_ref_ki;
+                        obj.u_ref_k = u_ref_ki;
+                    end
+                    p = [p; x_ref_ki; u_ref_ki];
                 end
 
                 lbw(1:5) = x;
