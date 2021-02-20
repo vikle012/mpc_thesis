@@ -22,6 +22,10 @@ classdef SL_current < matlab.System & matlab.system.mixin.Propagates
         func
         u_old
         A_old
+        B_old
+        Kc_old
+        counter
+        error_counter
     end
 
     methods (Access = protected)
@@ -189,6 +193,13 @@ classdef SL_current < matlab.System & matlab.system.mixin.Propagates
                 {jacobian(diesel_engine(X, U, n_e, model), U)});
             [dx, ~, ~] = diesel_engine(X, U, n_e, model);
             obj.func.K_c = casadi.Function('K_c', {X, U, n_e}, {dx});
+            
+            
+            
+            obj.counter = 0;
+            obj.error_counter = 0;
+            
+            
         end
 
         function u = stepImpl(obj,x,t,n_e,x_ref,u_ref)  
@@ -209,16 +220,57 @@ classdef SL_current < matlab.System & matlab.system.mixin.Propagates
                 K_c = obj.func.K_c(x, obj.u_old, n_e);
                 
                 A = full(A(:));
-                for i = 1:length(A)
-                   if isnan(A(i))
-                      A(i) = obj.A_old(i); 
-                   end
+                B = full(B(:));
+                K_c = full(K_c(:));
+                
+%                 if any(isnan(A)) || any(isnan(B)) || any(isnan(K_c))
+%                     A = obj.func.A(x_ref, u_ref, n_e);
+%                     B = obj.func.B(x_ref, u_ref, n_e);
+%                     K_c = obj.func.K_c(x_ref, u_ref, n_e);
+%                     A = full(A(:));
+%                     B = full(B(:));
+%                     K_c = full(K_c(:));
+%                 end
+                             
+                if any(isnan(A)) || any(isnan(B)) || any(isnan(K_c))
+                   A = obj.A_old;
+                   B = obj.B_old;
+                   K_c = obj.Kc_old;
+                   obj.counter = obj.counter + 1;
+                else
+                    obj.A_old = A;
+                    obj.B_old = B;
+                    obj.Kc_old = K_c;
                 end
-                obj.A_old = A;
+                
+
+%                 A = full(A(:));
+%                 for i = 1:length(A)
+%                    if isnan(A(i))
+%                       A(i) = obj.A_old(i); 
+%                    end
+%                 end
+%                 obj.A_old = A;
+%                 
+%                 B = full(B(:));
+%                 for i = 1:length(B)
+%                    if isnan(B(i))
+%                       B(i) = obj.B_old(i); 
+%                    end
+%                 end
+%                 obj.B_old = B;
+%                 
+%                 K_c = full(K_c(:));
+%                 for i = 1:length(K_c)
+%                    if isnan(K_c(i))
+%                       K_c(i) = obj.Kc_old(i); 
+%                    end
+%                 end
+%                 obj.Kc_old = K_c;
 
                 % Independent parameters
                 p = A;                 % A = 5x5
-                p = [p; full(B(:))];            % B = 5x3
+                p = [p; B];            % B = 5x3
                 p = [p; K_c];                   % K_c = 5x1
                 p = [p; x_ref];                 
                 p = [p; u_ref];
@@ -226,20 +278,49 @@ classdef SL_current < matlab.System & matlab.system.mixin.Propagates
 
                 lbw(1:5) = x;
                 ubw(1:5) = x;
-
+                
+%                 if obj.counter == 98
+%                     keyboard
+%                 end
+                
+                if t == 1799.98
+                    keyboard
+                end
+                
+                try
                 sol = solver('x0', w0, ...
                              'p', p, ...
                              'lbx', lbw, ...
                              'ubx', ubw,...
                              'lbg', obj.lbg, ...
                              'ubg', obj.ubg);
-                w_opt = full(sol.x);
-                u_opt = w_opt(6:8);
-
-                u = u_opt;
-
-                % For integral action
-                obj.u_old = u;
+                         
+                    w_opt = full(sol.x);
+                    u_opt = w_opt(6:8);
+                    u = u_opt;
+                    obj.counter = obj.counter + 1;
+                    % For integral action
+                    obj.u_old = u;
+                catch
+                    u = obj.u_old;
+                    keyboard
+                    obj.error_counter = obj.error_counter + 1;
+                end
+                         
+                         
+                % if solver.stats.success == 1
+%                 if strcmp('Successful return.', solver.stats.return_status)
+%                     w_opt = full(sol.x);
+%                     u_opt = w_opt(6:8);
+%                     u = u_opt;
+%                     obj.counter = obj.counter + 1;
+%                 else
+%                     % return_status: 'Premature homotopy termination because QP is infeasible.'
+%                     keyboard
+%                     u = obj.u_old;
+%                     obj.error_counter = obj.error_counter + 1;
+%                 end
+                  
             end
             toc
         end
