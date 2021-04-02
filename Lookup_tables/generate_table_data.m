@@ -2,6 +2,7 @@
 
 load('parameterData')
 load('table_data_relaxed')
+addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WHTC')
 
 %% Use find_reference, find_reference_relax and find_reference_relax2
 
