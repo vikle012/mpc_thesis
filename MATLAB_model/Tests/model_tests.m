@@ -1,5 +1,4 @@
 %% MATLAB model testing
-% run first section of run.m
 
 addpath('MATLAB_model')
 
@@ -88,8 +87,6 @@ figure
 plot(tout, simT_em)
 hold on
 plot(tout, T_ems, 'r--')
-
-
 
 %% More testing
 

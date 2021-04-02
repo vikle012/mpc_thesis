@@ -177,10 +177,10 @@ xlabel('Time [s]')
 legend(["p_{im}", "p_{em}", "X_{Oim}", "X_{Oem}", "\omega_t"], 'Location', 'northeast')
 
 %% Export as PDF
-set(h2,'Units','Inches');
-pos = get(h2,'Position');
-set(h2,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
-print(h2,'Figures/errorsMatlabModel','-dpdf','-r0')
+% set(h2,'Units','Inches');
+% pos = get(h2,'Position');
+% set(h2,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
+% print(h2,'Figures/errorsMatlabModel','-dpdf','-r0')
 
 %%
 M_e_sim = zeros(length(t_sim), 1);
@@ -221,7 +221,7 @@ xlabel('Time [s]')
 legend(["Simulink model", "MATLAB model"], 'Location', 'northeast')
 
 %% Export as PDF
-set(h3,'Units','Inches');
-pos = get(h3,'Position');
-set(h3,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
-print(h3,'Figures/morecompMatlabModel','-dpdf','-r0')
+% set(h3,'Units','Inches');
+% pos = get(h3,'Position');
+% set(h3,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
+% print(h3,'Figures/morecompMatlabModel','-dpdf','-r0')
