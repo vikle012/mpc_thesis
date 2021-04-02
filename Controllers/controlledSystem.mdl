@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.265"
+    ComputedModelVersion    "1.268"
     NumModelReferences	    0
     NumTestPointedSignals   0
     NumProvidedFunctions    0
@@ -46,7 +46,7 @@ Model {
       $ObjectID		      2
       $ClassName	      "Simulink.WindowInfo"
       IsActive		      [1]
-      Location		      [616.0, 63.0, 1124.0, 838.0]
+      Location		      [409.0, 83.0, 1223.0, 841.0]
       Object {
 	$PropName		"ModelBrowserInfo"
 	$ObjectID		3
@@ -64,68 +64,20 @@ Model {
 	$ClassName		"Simulink.ExplorerBarInfo"
 	Visible			[1]
       }
-      Array {
-	Type			"Simulink.EditorInfo"
-	Dimension		6
-	Object {
-	  $ObjectID		  5
-	  IsActive		  [1]
-	  ViewObjType		  "SimulinkSubsys"
-	  LoadSaveID		  "506"
-	  Extents		  [1008.0, 655.0]
-	  ZoomFactor		  [1.4306569343065694]
-	  Offset		  [305.21428571428572, 235.5841836734694]
-	}
-	Object {
-	  $ObjectID		  6
-	  IsActive		  [0]
-	  ViewObjType		  "SimulinkSubsys"
-	  LoadSaveID		  "137"
-	  Extents		  [1162.0, 611.0]
-	  ZoomFactor		  [2.0]
-	  Offset		  [-185.41417910447763, -58.765298507462731]
-	}
-	Object {
-	  $ObjectID		  7
-	  IsActive		  [0]
-	  ViewObjType		  "SimulinkSubsys"
-	  LoadSaveID		  "307"
-	  Extents		  [1162.0, 611.0]
-	  ZoomFactor		  [2.0]
-	  Offset		  [-124.06666666666646, -141.68809523809514]
-	}
-	Object {
-	  $ObjectID		  8
-	  IsActive		  [0]
-	  ViewObjType		  "SimulinkSubsys"
-	  LoadSaveID		  "7"
-	  Extents		  [1008.0, 655.0]
-	  ZoomFactor		  [0.9]
-	  Offset		  [-88.66015625, -103.83333333333331]
-	}
-	Object {
-	  $ObjectID		  9
-	  IsActive		  [0]
-	  ViewObjType		  "SimulinkSubsys"
-	  LoadSaveID		  "224"
-	  Extents		  [858.0, 904.0]
-	  ZoomFactor		  [1.78]
-	  Offset		  [-126.74824438202245, 15.65168539325839]
-	}
-	Object {
-	  $ObjectID		  10
-	  IsActive		  [0]
-	  ViewObjType		  "SimulinkSubsys"
-	  LoadSaveID		  "391"
-	  Extents		  [1008.0, 655.0]
-	  ZoomFactor		  [0.78114617940199327]
-	  Offset		  [-269.372408293461, 11.077618288144549]
-	}
-	PropName		"EditorsInfo"
+      Object {
+	$PropName		"EditorsInfo"
+	$ObjectID		5
+	$ClassName		"Simulink.EditorInfo"
+	IsActive		[1]
+	ViewObjType		"SimulinkSubsys"
+	LoadSaveID		"506"
+	Extents			[1107.0, 661.0]
+	ZoomFactor		[1.43]
+	Offset			[270.78671328671328, 234.23076923076923]
       }
       Object {
 	$PropName		"DockComponentsInfo"
-	$ObjectID		11
+	$ObjectID		6
 	$ClassName		"Simulink.DockComponentInfo"
 	Type			"GLUE2:PropertyInspector"
 	ID			"Property Inspector"
@@ -142,7 +94,7 @@ Model {
       "AAAAAAA+wAAABYARABvAGMAawBXAGkAZABnAGUAdAA0AAAAAAD/////AAAAAAAAAAD7AAAAUgBHAEwAVQBFADIAIAB0AHIAZQBlACAAYwBvAG0Ac"
       "ABvAG4AZQBuAHQALwBHAEwAVQBFADIAIAB0AHIAZQBlACAAYwBvAG0AcABvAG4AZQBuAHQAAAAAQAAAA8wAAABjAP///wAAAAEAAAEwAAADzPwCA"
       "AAAAfsAAABUAEcATABVAEUAMgA6AFAAcgBvAHAAZQByAHQAeQBJAG4AcwBwAGUAYwB0AG8AcgAvAFAAcgBvAHAAZQByAHQAeQAgAEkAbgBzAHAAZ"
-      "QBjAHQAbwByAAAAAAD/////AAABrAD///8AAAQWAAACygAAAAEAAAACAAAAAQAAAAL8AAAABAAAAAAAAAABAAAANgBjAG8AbABsAGEAcABzAGkAY"
+      "QBjAHQAbwByAAAAAAD/////AAABrAD///8AAAR5AAACzQAAAAEAAAACAAAAAQAAAAL8AAAABAAAAAAAAAABAAAANgBjAG8AbABsAGEAcABzAGkAY"
       "gBsAGUAUABhAG4AZQBsAFQAbwBvAGwAQgBhAHIATABlAGYAdAMAAAAA/////wAAAAAAAAAAAAAAAQAAAAEAAAA4AGMAbwBsAGwAYQBwAHMAaQBiA"
       "GwAZQBQAGEAbgBlAGwAVABvAG8AbABCAGEAcgBSAGkAZwBoAHQDAAAAAP////8AAAAAAAAAAAAAAAIAAAAP/////wAAAAAA/////wAAAAAAAAAA/"
       "////wEAAAAA/////wAAAAAAAAAA/////wAAAAAA/////wAAAAAAAAAA/////wAAAAAA/////wAAAAAAAAAA/////wAAAAAA/////wAAAAAAAAAA/"
@@ -159,9 +111,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "Jonte"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Feb 10 00:16:53 2021"
-  RTWModifiedTimeStamp	  534815612
-  ModelVersionFormat	  "1.%<AutoIncrement:265>"
+  LastModifiedDate	  "Sat Apr 03 00:12:00 2021"
+  RTWModifiedTimeStamp	  535905688
+  ModelVersionFormat	  "1.%<AutoIncrement:268>"
   SampleTimeColors	  off
   SampleTimeAnnotations	  off
   LibraryLinkDisplay	  "none"
@@ -215,7 +167,7 @@ Model {
   TryForcingSFcnDF	  off
   Object {
     $PropName		    "DataLoggingOverride"
-    $ObjectID		    12
+    $ObjectID		    7
     $ClassName		    "Simulink.SimulationData.ModelLoggingInfo"
     model_		    "controlledSystem"
     Array {
@@ -259,7 +211,7 @@ Model {
     Type		    "Handle"
     Dimension		    1
     Simulink.ConfigSet {
-      $ObjectID		      13
+      $ObjectID		      8
       Version		      "19.0.0"
       DisabledProps	      []
       Description	      ""
@@ -267,7 +219,7 @@ Model {
 	Type			"Handle"
 	Dimension		9
 	Simulink.SolverCC {
-	  $ObjectID		  14
+	  $ObjectID		  9
 	  Version		  "19.0.0"
 	  DisabledProps		  []
 	  Description		  ""
@@ -310,7 +262,7 @@ Model {
 	  SolverOrder		  3
 	}
 	Simulink.DataIOCC {
-	  $ObjectID		  15
+	  $ObjectID		  10
 	  Version		  "19.0.0"
 	  DisabledProps		  []
 	  Description		  ""
@@ -352,7 +304,7 @@ Model {
 	  LoggingIntervals	  "[-inf, inf]"
 	}
 	Simulink.OptimizationCC {
-	  $ObjectID		  16
+	  $ObjectID		  11
 	  Version		  "19.0.0"
 	  Array {
 	    Type		    "Cell"
@@ -423,7 +375,7 @@ Model {
 	  DenormalBehavior	  "GradualUnderflow"
 	}
 	Simulink.DebuggingCC {
-	  $ObjectID		  17
+	  $ObjectID		  12
 	  Version		  "19.0.0"
 	  Array {
 	    Type		    "Cell"
@@ -545,7 +497,7 @@ Model {
 	  ArithmeticOperatorsInVariantConditions "warning"
 	}
 	Simulink.HardwareCC {
-	  $ObjectID		  18
+	  $ObjectID		  13
 	  Version		  "19.0.0"
 	  DisabledProps		  []
 	  Description		  ""
@@ -595,7 +547,7 @@ Model {
 	  HardwareBoardFeatureSet "EmbeddedCoderHSP"
 	}
 	Simulink.ModelReferenceCC {
-	  $ObjectID		  19
+	  $ObjectID		  14
 	  Version		  "19.0.0"
 	  DisabledProps		  []
 	  Description		  ""
@@ -615,7 +567,7 @@ Model {
 	  SupportModelReferenceSimTargetCustomCode off
 	}
 	Simulink.SFSimCC {
-	  $ObjectID		  20
+	  $ObjectID		  15
 	  Version		  "19.0.0"
 	  DisabledProps		  []
 	  Description		  ""
@@ -649,7 +601,7 @@ Model {
 	}
 	Simulink.RTWCC {
 	  $BackupClass		  "Simulink.RTWCC"
-	  $ObjectID		  21
+	  $ObjectID		  16
 	  Version		  "19.0.0"
 	  Array {
 	    Type		    "Cell"
@@ -738,7 +690,7 @@ Model {
 	    Type		    "Handle"
 	    Dimension		    2
 	    Simulink.CodeAppCC {
-	      $ObjectID		      22
+	      $ObjectID		      17
 	      Version		      "19.0.0"
 	      Array {
 		Type			"Cell"
@@ -827,7 +779,7 @@ Model {
 	    }
 	    Simulink.GRTTargetCC {
 	      $BackupClass	      "Simulink.TargetCC"
-	      $ObjectID		      23
+	      $ObjectID		      18
 	      Version		      "19.0.0"
 	      Array {
 		Type			"Cell"
@@ -935,7 +887,7 @@ Model {
 	  }
 	}
 	SlCovCC.ConfigComp {
-	  $ObjectID		  24
+	  $ObjectID		  19
 	  Version		  "19.0.0"
 	  DisabledProps		  []
 	  Description		  "Simulink Coverage Configuration Component"
@@ -986,11 +938,11 @@ Model {
   }
   Simulink.ConfigSet {
     $PropName		    "ActiveConfigurationSet"
-    $ObjectID		    13
+    $ObjectID		    8
   }
   Object {
     $PropName		    "DataTransfer"
-    $ObjectID		    25
+    $ObjectID		    20
     $ClassName		    "Simulink.GlobalDataTransfer"
     DefaultTransitionBetweenSyncTasks "Ensure deterministic transfer (maximum delay)"
     DefaultTransitionBetweenAsyncTasks "Ensure data integrity only"
@@ -1375,7 +1327,7 @@ Model {
   }
   System {
     Name		    "controlledSystem"
-    Location		    [670, 68, 1794, 906]
+    Location		    [371, 81, 1594, 922]
     Open		    off
     PortBlocksUseCompactNotation off
     SetExecutionDomain	    off
@@ -1390,7 +1342,7 @@ Model {
     TiledPaperMargins	    [0.196850, 0.196850, 0.196850, 0.196850]
     TiledPageScale	    1
     ShowPageBoundaries	    off
-    ZoomFactor		    "176"
+    ZoomFactor		    "175"
     ReportName		    "simulink-default.rpt"
     SIDHighWatermark	    "672"
     SimulinkSubDomain	    "Simulink"
@@ -1404,7 +1356,7 @@ Model {
       RequestExecContextInheritance off
       System {
 	Name			"MPC"
-	Location		[616, 63, 1740, 901]
+	Location		[409, 83, 1632, 924]
 	Open			on
 	PortBlocksUseCompactNotation off
 	SetExecutionDomain	off
@@ -1551,10 +1503,10 @@ Model {
 	  Ports			  [5, 1]
 	  Position		  [560, 344, 780, 616]
 	  ZOrder		  28
-	  System		  "SL_ref"
-	  MaskType		  "SL_ref"
-	  MaskDisplay		  "disp('SL_ref');\nport_label('input',1,'x');\nport_label('input',2,'t');\nport_label('input',3,'n_e'"
-	  ");\nport_label('input',4,'x_ref');\nport_label('input',5,'u_ref');\nport_label('output',1,'u');\n"
+	  System		  "SLpreview_current"
+	  MaskType		  "SLpreview_current"
+	  MaskDisplay		  "disp('SLpreview_current');\nport_label('input',1,'x');\nport_label('input',2,'t');\nport_label('inp"
+	  "ut',3,'n_e');\nport_label('input',4,'x_ref');\nport_label('input',5,'u_ref');\nport_label('output',1,'u');\n"
 	  SimulateUsing		  "Interpreted execution"
 	}
 	Block {
@@ -1730,7 +1682,7 @@ Model {
       RequestExecContextInheritance off
       System {
 	Name			"Model"
-	Location		[2339, 144, 3463, 982]
+	Location		[376, 167, 1599, 1008]
 	Open			off
 	PortBlocksUseCompactNotation off
 	SetExecutionDomain	off
@@ -1745,7 +1697,7 @@ Model {
 	TiledPaperMargins	[0.196850, 0.196850, 0.196850, 0.196850]
 	TiledPageScale		1
 	ShowPageBoundaries	off
-	ZoomFactor		"249"
+	ZoomFactor		"250"
 	SimulinkSubDomain	"Simulink"
 	Block {
 	  BlockType		  SubSystem
@@ -1757,7 +1709,7 @@ Model {
 	  RequestExecContextInheritance	off
 	  Object {
 	    $PropName		    "MaskObject"
-	    $ObjectID		    26
+	    $ObjectID		    21
 	    $ClassName		    "Simulink.Mask"
 	    Description		    "A model for a Diesel engine with EGT and VGT.\n\nThe model is develped and parameterized for a "
 	    "Scania heavy duty truck engine and documented in the paper:\n\nJohan Wahlstrom and Lars Eriksson.\nModeling diese"
@@ -1769,84 +1721,84 @@ Model {
 	      Type		      "Simulink.MaskParameter"
 	      Dimension		      12
 	      Object {
-		$ObjectID		27
+		$ObjectID		22
 		Type			"edit"
 		Name			"gamma_e"
 		Prompt			"gamma_e"
 		Value			"model.gamma_e"
 	      }
 	      Object {
-		$ObjectID		28
+		$ObjectID		23
 		Type			"edit"
 		Name			"gamma_a"
 		Prompt			"gamma_a"
 		Value			"model.gamma_a"
 	      }
 	      Object {
-		$ObjectID		29
+		$ObjectID		24
 		Type			"edit"
 		Name			"p_amb"
 		Prompt			"p_amb"
 		Value			"model.p_amb"
 	      }
 	      Object {
-		$ObjectID		30
+		$ObjectID		25
 		Type			"edit"
 		Name			"c_ve"
 		Prompt			"c_ve"
 		Value			"model.c_ve"
 	      }
 	      Object {
-		$ObjectID		31
+		$ObjectID		26
 		Type			"edit"
 		Name			"c_va"
 		Prompt			"c_va"
 		Value			"model.c_va"
 	      }
 	      Object {
-		$ObjectID		32
+		$ObjectID		27
 		Type			"edit"
 		Name			"c_pe"
 		Prompt			"c_pe"
 		Value			"model.c_pe"
 	      }
 	      Object {
-		$ObjectID		33
+		$ObjectID		28
 		Type			"edit"
 		Name			"c_pa"
 		Prompt			"c_pa"
 		Value			"model.c_pa"
 	      }
 	      Object {
-		$ObjectID		34
+		$ObjectID		29
 		Type			"edit"
 		Name			"T_im"
 		Prompt			"T_im"
 		Value			"model.T_im"
 	      }
 	      Object {
-		$ObjectID		35
+		$ObjectID		30
 		Type			"edit"
 		Name			"T_amb"
 		Prompt			"T_amb"
 		Value			"model.T_amb"
 	      }
 	      Object {
-		$ObjectID		36
+		$ObjectID		31
 		Type			"edit"
 		Name			"R_e"
 		Prompt			"R_e"
 		Value			"model.R_e"
 	      }
 	      Object {
-		$ObjectID		37
+		$ObjectID		32
 		Type			"edit"
 		Name			"R_a"
 		Prompt			"R_a"
 		Value			"model.R_a"
 	      }
 	      Object {
-		$ObjectID		38
+		$ObjectID		33
 		Type			"edit"
 		Name			"X_Oc"
 		Prompt			"X_Oc"
@@ -1858,11 +1810,11 @@ Model {
 	      Type		      "Simulink.dialog.Group"
 	      Dimension		      2
 	      Object {
-		$ObjectID		39
+		$ObjectID		34
 		Prompt			"%<MaskType>"
 		Object {
 		  $PropName		  "DialogControls"
-		  $ObjectID		  40
+		  $ObjectID		  35
 		  $ClassName		  "Simulink.dialog.Text"
 		  Prompt		  "%<MaskDescription>"
 		  Name			  "DescTextVar"
@@ -1870,57 +1822,57 @@ Model {
 		Name			"DescGroupVar"
 	      }
 	      Object {
-		$ObjectID		41
+		$ObjectID		36
 		Prompt			"Simulink:studio:ToolBarParametersMenu"
 		Array {
 		  Type			  "Simulink.dialog.parameter.Edit"
 		  Dimension		  12
 		  Object {
-		    $ObjectID		    42
+		    $ObjectID		    37
 		    Name		    "gamma_e"
 		  }
 		  Object {
-		    $ObjectID		    43
+		    $ObjectID		    38
 		    Name		    "gamma_a"
 		  }
 		  Object {
-		    $ObjectID		    44
+		    $ObjectID		    39
 		    Name		    "p_amb"
 		  }
 		  Object {
-		    $ObjectID		    45
+		    $ObjectID		    40
 		    Name		    "c_ve"
 		  }
 		  Object {
-		    $ObjectID		    46
+		    $ObjectID		    41
 		    Name		    "c_va"
 		  }
 		  Object {
-		    $ObjectID		    47
+		    $ObjectID		    42
 		    Name		    "c_pe"
 		  }
 		  Object {
-		    $ObjectID		    48
+		    $ObjectID		    43
 		    Name		    "c_pa"
 		  }
 		  Object {
-		    $ObjectID		    49
+		    $ObjectID		    44
 		    Name		    "T_im"
 		  }
 		  Object {
-		    $ObjectID		    50
+		    $ObjectID		    45
 		    Name		    "T_amb"
 		  }
 		  Object {
-		    $ObjectID		    51
+		    $ObjectID		    46
 		    Name		    "R_e"
 		  }
 		  Object {
-		    $ObjectID		    52
+		    $ObjectID		    47
 		    Name		    "R_a"
 		  }
 		  Object {
-		    $ObjectID		    53
+		    $ObjectID		    48
 		    Name		    "X_Oc"
 		  }
 		  PropName		  "DialogControls"
@@ -1932,7 +1884,7 @@ Model {
 	  }
 	  System {
 	    Name		    "Engine"
-	    Location		    [2339, 144, 3463, 982]
+	    Location		    [376, 167, 1599, 1008]
 	    Open		    off
 	    PortBlocksUseCompactNotation off
 	    SetExecutionDomain	    off
@@ -1998,41 +1950,41 @@ Model {
 	      RequestExecContextInheritance off
 	      Object {
 		$PropName		"MaskObject"
-		$ObjectID		54
+		$ObjectID		49
 		$ClassName		"Simulink.Mask"
 		Array {
 		  Type			  "Simulink.MaskParameter"
 		  Dimension		  5
 		  Object {
-		    $ObjectID		    55
+		    $ObjectID		    50
 		    Type		    "edit"
 		    Name		    "n_cyl"
 		    Prompt		    "n_cyl"
 		    Value		    "model.n_cyl"
 		  }
 		  Object {
-		    $ObjectID		    56
+		    $ObjectID		    51
 		    Type		    "edit"
 		    Name		    "AFs"
 		    Prompt		    "AFs"
 		    Value		    "model.AFs"
 		  }
 		  Object {
-		    $ObjectID		    57
+		    $ObjectID		    52
 		    Type		    "edit"
 		    Name		    "q_HV"
 		    Prompt		    "q_HV"
 		    Value		    "model.q_HV"
 		  }
 		  Object {
-		    $ObjectID		    58
+		    $ObjectID		    53
 		    Type		    "edit"
 		    Name		    "V_d"
 		    Prompt		    "V_d"
 		    Value		    "model.V_d"
 		  }
 		  Object {
-		    $ObjectID		    59
+		    $ObjectID		    54
 		    Type		    "edit"
 		    Name		    "r_c"
 		    Prompt		    "r_c"
@@ -2043,8 +1995,8 @@ Model {
 	      }
 	      System {
 		Name			"Cylinder"
-		Location		[2339, 144, 3463, 982]
-		Open			on
+		Location		[207, 133, 1764, 971]
+		Open			off
 		PortBlocksUseCompactNotation off
 		SetExecutionDomain	off
 		ExecutionDomainType	"Deduce"
@@ -2133,11 +2085,11 @@ Model {
 		  RequestExecContextInheritance	off
 		  Object {
 		    $PropName		    "MaskObject"
-		    $ObjectID		    60
+		    $ObjectID		    55
 		    $ClassName		    "Simulink.Mask"
 		    Object {
 		    $PropName		    "Parameters"
-		    $ObjectID		    61
+		    $ObjectID		    56
 		    $ClassName		    "Simulink.MaskParameter"
 		    Type		    "edit"
 		    Name		    "c_volVec"
@@ -2337,34 +2289,34 @@ Model {
 		  RequestExecContextInheritance	off
 		  Object {
 		    $PropName		    "MaskObject"
-		    $ObjectID		    62
+		    $ObjectID		    57
 		    $ClassName		    "Simulink.Mask"
 		    Array {
 		    Type		    "Simulink.MaskParameter"
 		    Dimension		    4
 		    Object {
-		    $ObjectID		    63
+		    $ObjectID		    58
 		    Type		    "edit"
 		    Name		    "x_cv"
 		    Prompt		    "x_cv"
 		    Value		    "model.x_cv"
 		    }
 		    Object {
-		    $ObjectID		    64
+		    $ObjectID		    59
 		    Type		    "edit"
 		    Name		    "eta_sc"
 		    Prompt		    "eta_sc"
 		    Value		    "model.eta_sc"
 		    }
 		    Object {
-		    $ObjectID		    65
+		    $ObjectID		    60
 		    Type		    "edit"
 		    Name		    "x_r_Init"
 		    Prompt		    "x_r_Init"
 		    Value		    "simulate.x_r_Init"
 		    }
 		    Object {
-		    $ObjectID		    66
+		    $ObjectID		    61
 		    Type		    "edit"
 		    Name		    "T_1_Init"
 		    Prompt		    "T_1_Init"
@@ -3239,27 +3191,27 @@ Model {
 		  RequestExecContextInheritance	off
 		  Object {
 		    $PropName		    "MaskObject"
-		    $ObjectID		    67
+		    $ObjectID		    62
 		    $ClassName		    "Simulink.Mask"
 		    Array {
 		    Type		    "Simulink.MaskParameter"
 		    Dimension		    3
 		    Object {
-		    $ObjectID		    68
+		    $ObjectID		    63
 		    Type		    "edit"
 		    Name		    "c_fricVec"
 		    Prompt		    "c_fricVec"
 		    Value		    "model.c_fricVec"
 		    }
 		    Object {
-		    $ObjectID		    69
+		    $ObjectID		    64
 		    Type		    "edit"
 		    Name		    "eta_igch"
 		    Prompt		    "eta_igch"
 		    Value		    "model.eta_igch"
 		    }
 		    Object {
-		    $ObjectID		    70
+		    $ObjectID		    65
 		    Type		    "edit"
 		    Name		    "gamma_c"
 		    Prompt		    "gamma_c"
@@ -3599,41 +3551,41 @@ Model {
 		  RequestExecContextInheritance	off
 		  Object {
 		    $PropName		    "MaskObject"
-		    $ObjectID		    71
+		    $ObjectID		    66
 		    $ClassName		    "Simulink.Mask"
 		    Array {
 		    Type		    "Simulink.MaskParameter"
 		    Dimension		    5
 		    Object {
-		    $ObjectID		    72
+		    $ObjectID		    67
 		    Type		    "edit"
 		    Name		    "h_tot"
 		    Prompt		    "h_tot"
 		    Value		    "model.h_tot"
 		    }
 		    Object {
-		    $ObjectID		    73
+		    $ObjectID		    68
 		    Type		    "edit"
 		    Name		    "n_pipe"
 		    Prompt		    "n_pipe"
 		    Value		    "model.n_pipe"
 		    }
 		    Object {
-		    $ObjectID		    74
+		    $ObjectID		    69
 		    Type		    "edit"
 		    Name		    "l_pipe"
 		    Prompt		    "l_pipe"
 		    Value		    "model.l_pipe"
 		    }
 		    Object {
-		    $ObjectID		    75
+		    $ObjectID		    70
 		    Type		    "edit"
 		    Name		    "d_pipe"
 		    Prompt		    "d_pipe"
 		    Value		    "model.d_pipe"
 		    }
 		    Object {
-		    $ObjectID		    76
+		    $ObjectID		    71
 		    Type		    "edit"
 		    Name		    "T_w"
 		    Prompt		    "T_w"
@@ -4440,34 +4392,34 @@ Model {
 	      RequestExecContextInheritance off
 	      Object {
 		$PropName		"MaskObject"
-		$ObjectID		77
+		$ObjectID		72
 		$ClassName		"Simulink.Mask"
 		Array {
 		  Type			  "Simulink.MaskParameter"
 		  Dimension		  4
 		  Object {
-		    $ObjectID		    78
+		    $ObjectID		    73
 		    Type		    "edit"
 		    Name		    "PI_egropt"
 		    Prompt		    "PI_egropt"
 		    Value		    "model.PI_egropt"
 		  }
 		  Object {
-		    $ObjectID		    79
+		    $ObjectID		    74
 		    Type		    "edit"
 		    Name		    "c_egr"
 		    Prompt		    "c_egr"
 		    Value		    "model.c_egr"
 		  }
 		  Object {
-		    $ObjectID		    80
+		    $ObjectID		    75
 		    Type		    "edit"
 		    Name		    "uInit_egr"
 		    Prompt		    "uInit_egr"
 		    Value		    "simulate.u_egr_Init"
 		  }
 		  Object {
-		    $ObjectID		    81
+		    $ObjectID		    76
 		    Type		    "edit"
 		    Name		    "A_egrmax"
 		    Prompt		    "A_egrmax"
@@ -4583,20 +4535,20 @@ Model {
 		    RequestExecContextInheritance off
 		    Object {
 		    $PropName		    "MaskObject"
-		    $ObjectID		    82
+		    $ObjectID		    77
 		    $ClassName		    "Simulink.Mask"
 		    Array {
 		    Type		    "Simulink.MaskParameter"
 		    Dimension		    2
 		    Object {
-		    $ObjectID		    83
+		    $ObjectID		    78
 		    Type		    "edit"
 		    Name		    "tau"
 		    Prompt		    "tau"
 		    Value		    "model.tau_egr1"
 		    }
 		    Object {
-		    $ObjectID		    84
+		    $ObjectID		    79
 		    Type		    "edit"
 		    Name		    "uInit"
 		    Prompt		    "uInit"
@@ -4730,20 +4682,20 @@ Model {
 		    RequestExecContextInheritance off
 		    Object {
 		    $PropName		    "MaskObject"
-		    $ObjectID		    85
+		    $ObjectID		    80
 		    $ClassName		    "Simulink.Mask"
 		    Array {
 		    Type		    "Simulink.MaskParameter"
 		    Dimension		    2
 		    Object {
-		    $ObjectID		    86
+		    $ObjectID		    81
 		    Type		    "edit"
 		    Name		    "tau"
 		    Prompt		    "tau"
 		    Value		    "model.tau_egr2"
 		    }
 		    Object {
-		    $ObjectID		    87
+		    $ObjectID		    82
 		    Type		    "edit"
 		    Name		    "uInit"
 		    Prompt		    "uInit"
@@ -4754,8 +4706,8 @@ Model {
 		    }
 		    System {
 		    Name		    "Actuator2"
-		    Location		    [377, 127, 1501, 965]
-		    Open		    on
+		    Location		    [207, 133, 1764, 971]
+		    Open		    off
 		    PortBlocksUseCompactNotation off
 		    SetExecutionDomain	    off
 		    ExecutionDomainType	    "Deduce"
@@ -5436,20 +5388,20 @@ Model {
 	      RequestExecContextInheritance off
 	      Object {
 		$PropName		"MaskObject"
-		$ObjectID		88
+		$ObjectID		83
 		$ClassName		"Simulink.Mask"
 		Array {
 		  Type			  "Simulink.MaskParameter"
 		  Dimension		  2
 		  Object {
-		    $ObjectID		    89
+		    $ObjectID		    84
 		    Type		    "edit"
 		    Name		    "p_em_Init"
 		    Prompt		    "p_em_Init"
 		    Value		    "simulate.p_em_Init"
 		  }
 		  Object {
-		    $ObjectID		    90
+		    $ObjectID		    85
 		    Type		    "edit"
 		    Name		    "V_em"
 		    Prompt		    "V_em"
@@ -5898,20 +5850,20 @@ Model {
 	      RequestExecContextInheritance off
 	      Object {
 		$PropName		"MaskObject"
-		$ObjectID		91
+		$ObjectID		86
 		$ClassName		"Simulink.Mask"
 		Array {
 		  Type			  "Simulink.MaskParameter"
 		  Dimension		  2
 		  Object {
-		    $ObjectID		    92
+		    $ObjectID		    87
 		    Type		    "edit"
 		    Name		    "p_im_Init"
 		    Prompt		    "p_im_Init"
 		    Value		    "simulate.p_im_Init"
 		  }
 		  Object {
-		    $ObjectID		    93
+		    $ObjectID		    88
 		    Type		    "edit"
 		    Name		    "V_im"
 		    Prompt		    "V_im"
@@ -6483,8 +6435,8 @@ Model {
 	      RequestExecContextInheritance off
 	      System {
 		Name			"Turbo"
-		Location		[377, 127, 1501, 965]
-		Open			on
+		Location		[376, 167, 1599, 1008]
+		Open			off
 		PortBlocksUseCompactNotation off
 		SetExecutionDomain	off
 		ExecutionDomainType	"Deduce"
@@ -6498,7 +6450,7 @@ Model {
 		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
 		TiledPageScale		1
 		ShowPageBoundaries	off
-		ZoomFactor		"178"
+		ZoomFactor		"270"
 		SimulinkSubDomain	"Simulink"
 		Block {
 		  BlockType		  Inport
@@ -6545,76 +6497,76 @@ Model {
 		  RequestExecContextInheritance	off
 		  Object {
 		    $PropName		    "MaskObject"
-		    $ObjectID		    94
+		    $ObjectID		    89
 		    $ClassName		    "Simulink.Mask"
 		    Array {
 		    Type		    "Simulink.MaskParameter"
 		    Dimension		    10
 		    Object {
-		    $ObjectID		    95
+		    $ObjectID		    90
 		    Type		    "edit"
 		    Name		    "c_pi"
 		    Prompt		    "c_pi"
 		    Value		    "model.c_pi"
 		    }
 		    Object {
-		    $ObjectID		    96
+		    $ObjectID		    91
 		    Type		    "edit"
 		    Name		    "pi_copt"
 		    Prompt		    "pi_copt"
 		    Value		    "model.pi_copt"
 		    }
 		    Object {
-		    $ObjectID		    97
+		    $ObjectID		    92
 		    Type		    "edit"
 		    Name		    "w_copt"
 		    Prompt		    "w_copt"
 		    Value		    "model.w_copt"
 		    }
 		    Object {
-		    $ObjectID		    98
+		    $ObjectID		    93
 		    Type		    "edit"
 		    Name		    "eta_cmax"
 		    Prompt		    "eta_cmax"
 		    Value		    "model.eta_cmax"
 		    }
 		    Object {
-		    $ObjectID		    99
+		    $ObjectID		    94
 		    Type		    "edit"
 		    Name		    "Q_c"
 		    Prompt		    "Q_c"
 		    Value		    "model.Q_c"
 		    }
 		    Object {
-		    $ObjectID		    100
+		    $ObjectID		    95
 		    Type		    "edit"
 		    Name		    "c_wphiVec"
 		    Prompt		    "c_wphiVec"
 		    Value		    "model.c_wphiVec"
 		    }
 		    Object {
-		    $ObjectID		    101
+		    $ObjectID		    96
 		    Type		    "edit"
 		    Name		    "c_wpsiVec"
 		    Prompt		    "c_wpsiVec"
 		    Value		    "model.c_wpsiVec"
 		    }
 		    Object {
-		    $ObjectID		    102
+		    $ObjectID		    97
 		    Type		    "edit"
 		    Name		    "c_phi2"
 		    Prompt		    "c_phi2"
 		    Value		    "model.c_phi2"
 		    }
 		    Object {
-		    $ObjectID		    103
+		    $ObjectID		    98
 		    Type		    "edit"
 		    Name		    "c_psi2"
 		    Prompt		    "c_psi2"
 		    Value		    "model.c_psi2"
 		    }
 		    Object {
-		    $ObjectID		    104
+		    $ObjectID		    99
 		    Type		    "edit"
 		    Name		    "R_c"
 		    Prompt		    "R_c"
@@ -7997,104 +7949,104 @@ Model {
 		  RequestExecContextInheritance	off
 		  Object {
 		    $PropName		    "MaskObject"
-		    $ObjectID		    105
+		    $ObjectID		    100
 		    $ClassName		    "Simulink.Mask"
 		    Array {
 		    Type		    "Simulink.MaskParameter"
 		    Dimension		    14
 		    Object {
-		    $ObjectID		    106
+		    $ObjectID		    101
 		    Type		    "edit"
 		    Name		    "c_vgt2"
 		    Prompt		    "c_vgt2"
 		    Value		    "model.c_vgt2"
 		    }
 		    Object {
-		    $ObjectID		    107
+		    $ObjectID		    102
 		    Type		    "edit"
 		    Name		    "c_vgt1"
 		    Prompt		    "c_vgt1"
 		    Value		    "model.c_vgt1"
 		    }
 		    Object {
-		    $ObjectID		    108
+		    $ObjectID		    103
 		    Type		    "edit"
 		    Name		    "c_f2"
 		    Prompt		    "c_f2"
 		    Value		    "model.c_f2"
 		    }
 		    Object {
-		    $ObjectID		    109
+		    $ObjectID		    104
 		    Type		    "edit"
 		    Name		    "c_f1"
 		    Prompt		    "c_f1"
 		    Value		    "model.c_f1"
 		    }
 		    Object {
-		    $ObjectID		    110
+		    $ObjectID		    105
 		    Type		    "edit"
 		    Name		    "K_t"
 		    Prompt		    "K_t"
 		    Value		    "model.K_t"
 		    }
 		    Object {
-		    $ObjectID		    111
+		    $ObjectID		    106
 		    Type		    "edit"
 		    Name		    "uInit_vgt"
 		    Prompt		    "uInit_vgt"
 		    Value		    "simulate.u_vgt_Init"
 		    }
 		    Object {
-		    $ObjectID		    112
+		    $ObjectID		    107
 		    Type		    "edit"
 		    Name		    "tau_vgt"
 		    Prompt		    "tau_vgt"
 		    Value		    "model.tau_vgt"
 		    }
 		    Object {
-		    $ObjectID		    113
+		    $ObjectID		    108
 		    Type		    "edit"
 		    Name		    "c_mlin"
 		    Prompt		    "c_mlin"
 		    Value		    "model.c_mlin"
 		    }
 		    Object {
-		    $ObjectID		    114
+		    $ObjectID		    109
 		    Type		    "edit"
 		    Name		    "w_tlin"
 		    Prompt		    "w_tlin"
 		    Value		    "model.w_tlin"
 		    }
 		    Object {
-		    $ObjectID		    115
+		    $ObjectID		    110
 		    Type		    "edit"
 		    Name		    "c_mVec"
 		    Prompt		    "c_mVec"
 		    Value		    "model.c_mVec"
 		    }
 		    Object {
-		    $ObjectID		    116
+		    $ObjectID		    111
 		    Type		    "edit"
 		    Name		    "BSR_opt"
 		    Prompt		    "BSR_opt"
 		    Value		    "model.BSR_opt"
 		    }
 		    Object {
-		    $ObjectID		    117
+		    $ObjectID		    112
 		    Type		    "edit"
 		    Name		    "eta_tmmax"
 		    Prompt		    "eta_tmmax"
 		    Value		    "model.eta_tmmax"
 		    }
 		    Object {
-		    $ObjectID		    118
+		    $ObjectID		    113
 		    Type		    "edit"
 		    Name		    "R_t"
 		    Prompt		    "R_t"
 		    Value		    "model.R_t"
 		    }
 		    Object {
-		    $ObjectID		    119
+		    $ObjectID		    114
 		    Type		    "edit"
 		    Name		    "A_vgtmax"
 		    Prompt		    "A_vgtmax"
@@ -8176,20 +8128,20 @@ Model {
 		    RequestExecContextInheritance off
 		    Object {
 		    $PropName		    "MaskObject"
-		    $ObjectID		    120
+		    $ObjectID		    115
 		    $ClassName		    "Simulink.Mask"
 		    Array {
 		    Type		    "Simulink.MaskParameter"
 		    Dimension		    2
 		    Object {
-		    $ObjectID		    121
+		    $ObjectID		    116
 		    Type		    "edit"
 		    Name		    "tau"
 		    Prompt		    "tau"
 		    Value		    "tau_vgt"
 		    }
 		    Object {
-		    $ObjectID		    122
+		    $ObjectID		    117
 		    Type		    "edit"
 		    Name		    "uInit"
 		    Prompt		    "uInit"
@@ -8200,8 +8152,8 @@ Model {
 		    }
 		    System {
 		    Name		    "Actuator"
-		    Location		    [377, 127, 1501, 965]
-		    Open		    on
+		    Location		    [207, 133, 1764, 971]
+		    Open		    off
 		    PortBlocksUseCompactNotation off
 		    SetExecutionDomain	    off
 		    ExecutionDomainType	    "Deduce"
@@ -9473,20 +9425,20 @@ Model {
 		  RequestExecContextInheritance	off
 		  Object {
 		    $PropName		    "MaskObject"
-		    $ObjectID		    123
+		    $ObjectID		    118
 		    $ClassName		    "Simulink.Mask"
 		    Array {
 		    Type		    "Simulink.MaskParameter"
 		    Dimension		    2
 		    Object {
-		    $ObjectID		    124
+		    $ObjectID		    119
 		    Type		    "edit"
 		    Name		    "omega_t_Init"
 		    Prompt		    "omega_t_Init"
 		    Value		    "simulate.omega_t_Init"
 		    }
 		    Object {
-		    $ObjectID		    125
+		    $ObjectID		    120
 		    Type		    "edit"
 		    Name		    "J_t"
 		    Prompt		    "J_t"
@@ -9497,7 +9449,7 @@ Model {
 		  }
 		  System {
 		    Name		    "Turbo inertia"
-		    Location		    [-8, -8, 1928, 1048]
+		    Location		    [371, 81, 1594, 922]
 		    Open		    off
 		    PortBlocksUseCompactNotation off
 		    SetExecutionDomain	    off
@@ -9512,7 +9464,7 @@ Model {
 		    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
 		    TiledPageScale	    1
 		    ShowPageBoundaries	    off
-		    ZoomFactor		    "100"
+		    ZoomFactor		    "226"
 		    SimulinkSubDomain	    "Simulink"
 		    Block {
 		    BlockType		    Inport
@@ -10122,8 +10074,8 @@ Model {
       RequestExecContextInheritance off
       System {
 	Name			"Variables"
-	Location		[555, 111, 1679, 949]
-	Open			on
+	Location		[207, 133, 1764, 971]
+	Open			off
 	PortBlocksUseCompactNotation off
 	SetExecutionDomain	off
 	ExecutionDomainType	"Deduce"

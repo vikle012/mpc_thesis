@@ -1,19 +1,33 @@
+%% Setup
+
 clear
 clc
 
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\MATLAB_model')
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\Controllers')
-addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WHTC')
-addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WHTC\data')
+addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\Lookup_tables')
+addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\Lookup_tables\data')
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WahlstromErikssonTCDI_EGR_VGT')
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\CasADi\casadi-windows-matlabR2016a-v3.5.5')
 load parameterData
 
+%% System Inputs & Reference Generating
+
 % WHTC
-WHTC_interpolate
-M_e_input = new_torque(1:6001);
-n_e_input = new_speed(1:6001);
-time_vector = new_t(1:6001);
+interpolate_WHTC
+M_e_input = new_torque; %(122000:124500); % Tester i anteckningar
+n_e_input = new_speed; %(122000:124500);
+time_vector = new_t; %(122000:124500);
+
+% interpolate_WHTC % funktion
+% M_e_input = new_torque(47900:52000); %(25000:30000);
+% n_e_input = new_speed(47900:52000); %(25000:30000);
+% time_vector = new_t(47900:52000); %(25000:30000);
+
+% SL_current
+% iteration 24591 nan
+% iteration 33588 ol?slig
+% iteration 92803 ol?slig
 
 % 895 s - 955 s
 % M_e_input = new_torque(89401:95401);
@@ -21,8 +35,8 @@ time_vector = new_t(1:6001);
 % time_vector = new_t(89401:95401);
 
 % Step
-% M_e_input = [800; 2000];
-% n_e_input = [1600; 1600];
+% M_e_input = [800; 2150];
+% n_e_input = [1200; 1200];
 
 % Sinusoid
 % M_e_input = 1000 + 500*sin(0:pi/200:5*pi)';
@@ -32,12 +46,8 @@ time_vector = new_t(1:6001);
 % M_e_input = [650 650:2:2000]';
 % n_e_input = repmat(1200,1,length(M_e_input));
 
-[x_ref, u_ref] = reference_generator(M_e_input, n_e_input);
-% load('WHTC_ref')
-
-% Testing
-% [~, y, ~] = diesel_engine(x_ref(:,2), u_ref(:,2), 1200, model)
-% [x_ref, u_ref] = find_reference(M_e_input, n_e_input, model);
+% [x_ref, u_ref] = reference_generator(M_e_input, n_e_input);
+load('WHTC_ref')
 
 % Step
 % time_vector = [0 1]';
@@ -56,14 +66,14 @@ control.u_vgtact = 0; % without VGT-actuator dynamics
 %% Select Controller
 
 % Simulation times
-start_time = time_vector(1); %0;
-stop_time = time_vector(end); %10;
+start_time = time_vector(1); 
+stop_time = time_vector(end);
 
-controller_object = 'SL_current';
-save_name = 'SLcurrent_WHTC';
+controller_object = 'SLpreview_ref';
+% save_name = 'longPreview_ref';
 plot_ref = 1;
 
-integral_action = 1;
+integral_action = 0;
 % 0: without integral action
 % 1: with integral action
 
@@ -74,28 +84,31 @@ global init_param;
 init_param.model = model;
 init_param.integral_action = integral_action;
 init_param.T_s = 0.01;
-init_param.N = 40;
+init_param.N = 100;
 
+% State weights
 q1 = 10/((0.5*model.p_amb + 10*model.p_amb)/2)^2;
 q2 = 10/((0.5*model.p_amb + 20*model.p_amb)/2)^2;
 q3 = 1/((0 + 1)/2)^2;
 q4 = 1/((0 + 1)/2)^2;
 q5 = 10/((100*pi/30 + 200000*pi/30)/2)^2;
 
+% Control signal weights
 r1 = 5/((1 + 250)/2)^2;
 r2 = 0.05/((0 + 100)/2)^2;
 r3 = 0.05/((20 + 100)/2)^2; 
 
-% Integral action
+% Integral action weights
 s1 = 0.05/((1 + 250)/2)^2;
 s2 = 0.05/((0 + 100)/2)^2;
 s3 = 0.05/((20 + 100)/2)^2; 
 
+% No need to modify these
 init_param.Q = diag([q1 q2 q3 q4 q5]);
 init_param.R = diag([r1 r2 r3]);
 init_param.S = diag([s1 s2 s3]);
 
-init_param.u_old = u_ref(:,1); % Not happy with this fix, but works
+init_param.u_old = u_ref(:,1);
 
 %% Simulation Set-up
 
@@ -180,7 +193,7 @@ for i = 1:5
     if plot_ref == 1
         
         % Step
-        stairs([time_vector; stop_time], [x_ref(i,:)'; x_ref(i,end)], 'k:');
+        % stairs([time_vector; stop_time], [x_ref(i,:)'; x_ref(i,end)], 'k:');
         
         % Ramp & Sinus
 %         stairs(time_vector, x_ref(i,:), 'k:');
@@ -212,7 +225,7 @@ for i = 1:3
     hold on
     if plot_ref == 1
         % Step
-        stairs([time_vector; stop_time], [u_ref(i,:)'; u_ref(i,end)], 'k:');
+%         stairs([time_vector; stop_time], [u_ref(i,:)'; u_ref(i,end)], 'k:');
         
         % Ramp & Sinus
 %         stairs(time_vector, u_ref(i,:), 'k:');
@@ -255,7 +268,7 @@ h3 = figure(3);
 hold on
 if plot_ref == 1
     % Step
-    stairs([time_vector; stop_time], [M_e_input; M_e_input(end)], 'k:');
+%     stairs([time_vector; stop_time], [M_e_input; M_e_input(end)], 'k:');
     
     % Ramp plot & Sinus
 %     plot(time_vector, M_e_input, 'k:');
@@ -276,8 +289,11 @@ end
 ylabel('M_e [Nm]')
 xlabel('Time [s]')
 
+%% Save workspace
 
-%%
+% save(save_name)
+
+%% Save figures
 
 % set(h1,'Units','Inches');
 % pos = get(h1,'Position');
@@ -302,7 +318,3 @@ xlabel('Time [s]')
 % set(h4,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
 % str = strcat(save_name, '_lambda_xegr');
 % print(h4, strcat('Figures/Results/', str),'-dpdf','-r0')
-
-%% Save workspace
-
-% save(save_name)

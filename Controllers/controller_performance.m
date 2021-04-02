@@ -1,41 +1,29 @@
-% Run with simulation data accessible
+%% Run after run_controlledSystem
+
+M_e_eval = squeeze(simOut.simM_e);
+W_f_eval = squeeze(simOut.simW_f);
+
+M_desired = M_e_input;
+
+for i = 1:length(M_e_input)
+    
+    % Closed rack motoring
+    if M_e_input(i) < 0
+        M_desired(i) = 0;
+        M_e_eval(i) = 0;
+        W_f_eval(i) = 0;
+    end
+    
+end
 
 T_cycle = simOut.simTime(end) - simOut.simTime(1);
 
-eMe = trapz(simOut.simTime, abs(M_e_input - squeeze(simOut.simM_e)))/T_cycle
+e_Me = trapz(simOut.simTime, abs(M_desired - M_e_eval))/T_cycle
 
-mf = trapz(simOut.simTime, squeeze(simOut.simW_f))
+m_f = trapz(simOut.simTime, W_f_eval)
 
-% In Joule
-Em_J = trapz(simOut.simTime, squeeze(simOut.simM_e).*simOut.simn_e)*30/pi;
-Em = Em_J*2.77777778e-7 % kWh
+E_m_J = trapz(simOut.simTime, M_e_eval.*simOut.simn_e)*30/pi; % In Joule
+E_m = E_m_J*2.77777778e-7 % in kWh
 
-
-%%
-
-% % Memory issues using this
-% idx = find(M_e_input < 0);
-% 
-% % Total fuel
-% trapz(simulate.T_s, squeeze(simOut.simW_f))
-% 
-% % Tracking error
-% trapz(simulate.T_s, abs(M_e_input - squeeze(simOut.simM_e)))/1799
-% 
-% % Total work
-% trapz(simulate.T_s, squeeze(simOut.simM_e).*simOut.simn_e)*30/pi
-% 
-% % Testing total work
-% Me = squeeze(simOut.simM_e);
-% Me_new = [];
-% ne_new = [];
-% for i = 1:length(Me)
-%    
-%     if Me(i) >= 0
-%        Me_new = [Me_new; Me(i)];
-%        ne_new = [ne_new; simOut.simn_e(i)];
-%     end   
-% end
-% trapz(simulate.T_s, Me_new.*ne_new)*30/pi
-
-% replace all neg. in desired and Me with 0?
+% g/kWh
+m_f*1000/E_m
