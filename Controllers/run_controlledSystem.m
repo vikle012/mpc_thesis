@@ -1,8 +1,7 @@
-%% Setup
-
 clear
 clc
 
+% Change to correct path if needed
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\MATLAB_model')
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\Controllers')
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\Lookup_tables')
@@ -11,71 +10,58 @@ addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\WahlstromErikssonTCDI_EGR_VG
 addpath('C:\Users\Jonte\Documents\GitHub\mpc_thesis\CasADi\casadi-windows-matlabR2016a-v3.5.5')
 load parameterData
 
-%% System Inputs & Reference Generating
+%% System Inputs (dimensions of vectors must match)
 
 % WHTC
-interpolate_WHTC
-M_e_input = new_torque; %(122000:124500); % Tester i anteckningar
-n_e_input = new_speed; %(122000:124500);
-time_vector = new_t; %(122000:124500);
+[torque, speed, time] = interpolate_WHTC;
+M_e_input = torque;
+n_e_input = speed;
+time_vector = time;
 
-% interpolate_WHTC % funktion
-% M_e_input = new_torque(47900:52000); %(25000:30000);
-% n_e_input = new_speed(47900:52000); %(25000:30000);
-% time_vector = new_t(47900:52000); %(25000:30000);
-
-% SL_current
-% iteration 24591 nan
-% iteration 33588 ol?slig
-% iteration 92803 ol?slig
-
-% 895 s - 955 s
-% M_e_input = new_torque(89401:95401);
-% n_e_input = new_speed(89401:95401);
-% time_vector = new_t(89401:95401);
-
-% Step
-% M_e_input = [800; 2150];
+% Transient response: needs different reference plotting
+% M_e_input = [650; 2000];
 % n_e_input = [1200; 1200];
+% time_vector = [0 1]';
+% stop_at = 10; % Only for transient
 
-% Sinusoid
+% Sinusoid response
 % M_e_input = 1000 + 500*sin(0:pi/200:5*pi)';
 % n_e_input = repmat(1200,1,length(M_e_input));
-
-% Ramp
-% M_e_input = [650 650:2:2000]';
-% n_e_input = repmat(1200,1,length(M_e_input));
-
-% [x_ref, u_ref] = reference_generator(M_e_input, n_e_input);
-load('WHTC_ref')
-
-% Step
-% time_vector = [0 1]';
-
-% Ramp
-% t_end = (length(M_e_input)-2)*0.01+0.5;
-% time_vector = [0 0.5:0.01:t_end]';
-
-% Sinus
 % t_end = (length(M_e_input)-1)*0.01;
 % time_vector = [0:0.01:t_end]';
 
-control.u_egract = 0; % without EGR-actuator dynamics
-control.u_vgtact = 0; % without VGT-actuator dynamics
+% Ramp response
+% M_e_input = [650 650:2:2000]';
+% n_e_input = repmat(1200,1,length(M_e_input));
+% t_end = (length(M_e_input)-2)*0.01+0.5;
+% time_vector = [0 0.5:0.01:t_end]';
+
+%% Reference Generating
+
+[x_ref, u_ref] = reference_generator(M_e_input, n_e_input);
+% load('WHTC_ref') pre-calculated WHTC references to save time
 
 %% Select Controller
 
 % Simulation times
-start_time = time_vector(1); 
+start_time = time_vector(1);
 stop_time = time_vector(end);
 
-controller_object = 'SLpreview_ref';
+% For transient
+if exist('stop_at')
+   stop_time = stop_at; 
+end
+
+controller_object = 'SLpreview_current';
 % save_name = 'longPreview_ref';
 plot_ref = 1;
 
 integral_action = 0;
 % 0: without integral action
 % 1: with integral action
+
+control.u_egract = 0; % without EGR-actuator dynamics
+control.u_vgtact = 0; % without VGT-actuator dynamics
 
 %% Tuning Parameters
 
@@ -84,7 +70,7 @@ global init_param;
 init_param.model = model;
 init_param.integral_action = integral_action;
 init_param.T_s = 0.01;
-init_param.N = 100;
+init_param.N = 40;
 
 % State weights
 q1 = 10/((0.5*model.p_amb + 10*model.p_amb)/2)^2;
@@ -137,11 +123,7 @@ if or(strcmp(controller_object, "SLpreview_ref"), ...
     u_ref_all = [u_ref_all repmat(u_ref(:,end), 1, init_param.N)];
     simulate.n_e = timeseries(n_e_input, time_vector); % Row vector since "From Workspace"
     simulate.x_ref = timeseries(x_ref_all, 0);
-    simulate.u_ref = timeseries(u_ref_all, 0);
-    
-%     [m, n] = size(x_ref_all);
-%     plot(linspace(0, stop_time+0.4, n), x_ref_all(1,:), '*')
-    
+    simulate.u_ref = timeseries(u_ref_all, 0); 
 else
     simulate.x_ref = timeseries(x_ref, time_vector); % Row vector since "From Workspace"
     simulate.u_ref = timeseries(u_ref, time_vector);
@@ -191,18 +173,7 @@ for i = 1:5
     subplot(5,1,i)
     hold on
     if plot_ref == 1
-        
-        % Step
-        % stairs([time_vector; stop_time], [x_ref(i,:)'; x_ref(i,end)], 'k:');
-        
-        % Ramp & Sinus
-%         stairs(time_vector, x_ref(i,:), 'k:');
-%         xlim([0 stop_time])
-        
-        % WHTC
-        % idx = find(M_e_input < 0);
-        % stairs(time_vector(1:end ~= idx), x_ref(i,1:end ~= idx), 'k:');
-        
+        stairs(time_vector, x_ref(i,:), 'k:');      
         plot(simOut.simTime, x_data(:,i))
     else
         plot(simOut.simTime, x_data(:,i), '--')
@@ -224,16 +195,7 @@ for i = 1:3
     subplot(3,1,i)
     hold on
     if plot_ref == 1
-        % Step
-%         stairs([time_vector; stop_time], [u_ref(i,:)'; u_ref(i,end)], 'k:');
-        
-        % Ramp & Sinus
-%         stairs(time_vector, u_ref(i,:), 'k:');
-%         xlim([0 stop_time])
-        
-        % WHTC
-        % stairs(time_vector, u_ref(i,:), 'k:');
-
+        stairs(time_vector, u_ref(i,:), 'k:');
         stairs(simOut.simTime, u_data(:,i))
     else
         stairs(simOut.simTime, u_data(:,i), '--')
@@ -267,24 +229,12 @@ xlabel('Time [s]')
 h3 = figure(3);
 hold on
 if plot_ref == 1
-    % Step
-%     stairs([time_vector; stop_time], [M_e_input; M_e_input(end)], 'k:');
-    
-    % Ramp plot & Sinus
-%     plot(time_vector, M_e_input, 'k:');
-%     xlim([0 stop_time])
-    
-    % WHTC
-     %plot(time_vector, M_e_input, 'k:')
+    stairs(time_vector, M_e_input, 'k:')
     plot(simOut.simTime, M_e)
 else
     plot(simOut.simTime, M_e, '--')
     
-    % Sinus to avoid blocking with legend
-%     ylim([200 1600])
-    
     legend(["Reference", "Without preview", "With preview"], 'Location', 'southeast')
-    legend(["Reference", "Without integral action", "With integral action"], 'Location', 'southeast')
 end
 ylabel('M_e [Nm]')
 xlabel('Time [s]')
