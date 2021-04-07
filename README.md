@@ -41,15 +41,15 @@ The main folder which contains the reference generator, MPC implementations
 and the controlled system. The MPC implementations are considered below,
 where each design has separate files for with and without preview.
 
-L.m & L_preview.m
+*L.m & L_preview.m*
 Linearization based MPC with linearization about a single linearization 
 point corresponding to 80 kW mechanical power at 1200 rpm engine speed
 
-SL_current.m & SLpreview_current.m
+*SL_current.m & SLpreview_current.m*
 Successive linearization based MPC with linearization about current 
 operating point (x(t), u(t))
 
-SL_ref.m & SLpreview_ref.m
+*SL_ref.m & SLpreview_ref.m*
 Successive linearization based MPC with linearization about reference 
 values (x_ref and u_ref)
 
